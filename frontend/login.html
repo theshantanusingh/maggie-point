@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to Maggie Point - Late night food delivery at Amity University">
+    <title>Login - Maggie Point</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="auth-container">
+        <!-- Left Side - Branding -->
+        <div class="auth-branding">
+            <div class="branding-content">
+                <a href="/" class="brand-logo">
+                    <span class="logo-icon">🍜</span>
+                    <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
+                </a>
+                <h1 class="branding-title">Welcome back!</h1>
+                <p class="branding-description">
+                    Login to order your favorite late-night snacks.
+                    We've been waiting for you!
+                </p>
+                <div class="branding-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">⚡</span>
+                        <span>15 min delivery</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🌙</span>
+                        <span>10:30 PM - 2:00 AM</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💰</span>
+                        <span>Student-friendly prices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="auth-form-container">
+            <div class="auth-form-wrapper">
+                <div class="form-header">
+                    <h2 class="form-title">Login to Your Account</h2>
+                    <p class="form-subtitle">Enter your credentials to continue</p>
+                </div>
+
+                <form class="auth-form" id="loginForm">
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input"
+                            placeholder="your.email@example.com" required autocomplete="email">
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            Password
+                            <a href="#forgot" class="label-link">Forgot password?</a>
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" name="password" class="form-input"
+                                placeholder="Enter your password" required autocomplete="current-password">
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me for 30 days</label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Login
+                    </button>
+
+                    <!-- Signup Link -->
+                    <div class="form-footer">
+                        Don't have an account? <a href="signup.html" class="form-link">Sign up here</a>
+                    </div>
+                </form>
+
+                <!-- Divider -->
+                <div class="form-divider">
+                    <span>or continue with</span>
+                </div>
+
+                <!-- Social Login (Optional - for future) -->
+                <div class="social-login">
+                    <button type="button" class="social-btn" disabled>
+                        <span>📱</span>
+                        <span>Phone Number</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+
+</html>
