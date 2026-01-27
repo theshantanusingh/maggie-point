@@ -85,9 +85,21 @@
                     <!-- OTP Field (Hidden initially) -->
                     <div class="form-group" id="otpGroup" style="display: none;">
                         <label for="otp" class="form-label">Verification Code</label>
-                        <input type="text" id="otp" name="otp" class="form-input" placeholder="Enter 6-digit OTP"
-                            maxlength="6">
+                        <div class="input-with-action">
+                            <input type="text" id="otp" name="otp" class="form-input" placeholder="Enter 6-digit OTP"
+                                maxlength="6">
+                            <button type="button" class="input-action-btn" id="verifyOtpBtn">
+                                Verify
+                            </button>
+                        </div>
                         <span class="form-hint success" id="otpTimer"></span>
+                    </div>
+
+                    <!-- Mobile Number -->
+                    <div class="form-group">
+                        <label for="mobile" class="form-label">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" class="form-input"
+                            placeholder="Enter 10-digit mobile number" maxlength="10" required>
                     </div>
 
                     <!-- Hostel Details -->

@@ -20,6 +20,12 @@ router.post('/send-otp', async (req, res) => {
             return res.status(400).json({ message: 'Email and first name are required' });
         }
 
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'This email is already registered. Please login.' });
+        }
+
         // Generate OTP
         const otp = generateOTP();
 
@@ -39,13 +45,35 @@ router.post('/send-otp', async (req, res) => {
     }
 });
 
+// POST /api/auth/verify-otp
+router.post('/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ message: 'Email and OTP are required' });
+        }
+
+        // Verify OTP
+        const otpRecord = await OTP.findOne({ email, otp });
+        if (!otpRecord) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        res.json({ message: 'OTP verified successfully' });
+    } catch (error) {
+        console.error('Verify OTP Error:', error);
+        res.status(500).json({ message: 'Failed to verify OTP', error: error.message });
+    }
+});
+
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
     try {
-        const { firstName, lastName, email, otp, floor, room, password } = req.body;
+        const { firstName, lastName, email, mobile, otp, floor, room, password } = req.body;
 
         // Validate required fields
-        if (!firstName || !lastName || !email || !otp || !floor || !room || !password) {
+        if (!firstName || !lastName || !email || !mobile || !otp || !floor || !room || !password) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
@@ -69,6 +97,7 @@ router.post('/signup', async (req, res) => {
             firstName,
             lastName,
             email,
+            mobile,
             password: hashedPassword,
             floor,
             room,
@@ -96,6 +125,7 @@ router.post('/signup', async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
+                mobile: user.mobile,
                 floor: user.floor,
                 room: user.room,
                 isAdmin: user.isAdmin

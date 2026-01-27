@@ -114,6 +114,56 @@ function initSignupPage() {
         }
     });
 
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+
+    // Verify OTP Button
+    verifyOtpBtn.addEventListener('click', async function () {
+        const email = emailInput.value.trim();
+        const otp = document.getElementById('otp').value.trim();
+
+        if (!otp || otp.length !== 6) {
+            showNotification('Please enter the 6-digit OTP', 'error');
+            return;
+        }
+
+        verifyOtpBtn.disabled = true;
+        verifyOtpBtn.textContent = 'Verifying...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, otp })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showNotification('✅ OTP Verified Successfully!', 'success');
+                verifyOtpBtn.textContent = 'Verified ✓';
+                verifyOtpBtn.classList.add('btn-success'); // You might need to add this style
+                document.getElementById('otp').disabled = true;
+
+                // Disable email editing too
+                emailInput.disabled = true;
+                sendOtpBtn.style.display = 'none';
+
+                // Stop timer
+                const timerElement = document.getElementById('otpTimer');
+                timerElement.style.display = 'none';
+            } else {
+                throw new Error(data.message || 'Invalid OTP');
+            }
+        } catch (error) {
+            console.error('Verify OTP Error:', error);
+            showNotification(error.message, 'error');
+            verifyOtpBtn.disabled = false;
+            verifyOtpBtn.textContent = 'Verify';
+        }
+    });
+
     // Password Strength Indicator
     passwordInput.addEventListener('input', function () {
         updatePasswordStrength(this.value);
@@ -133,6 +183,7 @@ function initSignupPage() {
             firstName: document.getElementById('firstName').value.trim(),
             lastName: document.getElementById('lastName').value.trim(),
             email: emailInput.value.trim(),
+            mobile: document.getElementById('mobile').value.trim(),
             otp: document.getElementById('otp').value.trim(),
             floor: parseInt(floorSelect.value),
             room: roomSelect.value,
@@ -330,6 +381,7 @@ function validateSignupForm() {
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
     const email = document.getElementById('email').value.trim();
+    const mobile = document.getElementById('mobile').value.trim();
     const otp = document.getElementById('otp').value.trim();
     const floor = document.getElementById('floor').value;
     const room = document.getElementById('room').value;
@@ -344,6 +396,11 @@ function validateSignupForm() {
 
     if (!isValidEmail(email)) {
         showNotification('Please enter a valid email address', 'error');
+        return false;
+    }
+
+    if (!mobile || mobile.length !== 10) {
+        showNotification('Please enter a valid 10-digit mobile number', 'error');
         return false;
     }
 
