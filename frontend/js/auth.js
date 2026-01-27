@@ -1,7 +1,11 @@
 /* ===================================
-   AUTH PAGES JAVASCRIPT
-   Login & Signup Functionality
+   auth.js - Authentication Logic
    =================================== */
+
+// API Base URL - Auto-detects environment
+const API_BASE_URL = window.location.hostname === 'maggiepoint.onessa.agency' || window.location.hostname === 'www.maggiepoint.onessa.agency' || window.location.hostname === '72.62.199.218'
+    ? ''
+    : 'http://localhost:3000';
 
 document.addEventListener('DOMContentLoaded', function () {
     // Determine which page we're on
@@ -53,8 +57,15 @@ function initSignupPage() {
     });
 
     // Send OTP Button
-    sendOtpBtn.addEventListener('click', function () {
+    sendOtpBtn.addEventListener('click', async function () {
         const email = emailInput.value.trim();
+        const firstName = document.getElementById('firstName').value.trim();
+
+        if (!firstName) {
+            showNotification('Please enter your first name first', 'error');
+            document.getElementById('firstName').focus();
+            return;
+        }
 
         if (!email) {
             showNotification('Please enter your email address', 'error');
@@ -72,16 +83,35 @@ function initSignupPage() {
         sendOtpBtn.disabled = true;
         sendOtpBtn.textContent = 'Sending...';
 
-        // Simulate OTP sending (replace with actual API call)
-        setTimeout(() => {
-            otpGroup.style.display = 'block';
-            sendOtpBtn.textContent = 'Resend OTP';
-            sendOtpBtn.disabled = false;
-            showNotification('OTP sent to your email!', 'success');
+        try {
+            // Call backend API
+            const response = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, firstName })
+            });
 
-            // Start timer
-            startOtpTimer(120); // 2 minutes
-        }, 1500);
+            const data = await response.json();
+
+            if (response.ok) {
+                otpGroup.style.display = 'block';
+                sendOtpBtn.textContent = 'Resend OTP';
+                sendOtpBtn.disabled = false;
+                showNotification('OTP sent to your email!', 'success');
+
+                // Start timer
+                startOtpTimer(300); // 5 minutes
+            } else {
+                throw new Error(data.message || 'Failed to send OTP');
+            }
+        } catch (error) {
+            console.error('OTP Error:', error);
+            showNotification(error.message || 'Failed to send OTP. Please try again.', 'error');
+            sendOtpBtn.textContent = 'Send OTP';
+            sendOtpBtn.disabled = false;
+        }
     });
 
     // Password Strength Indicator
@@ -90,7 +120,7 @@ function initSignupPage() {
     });
 
     // Form Submission
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         // Validate all fields
@@ -104,18 +134,47 @@ function initSignupPage() {
             lastName: document.getElementById('lastName').value.trim(),
             email: emailInput.value.trim(),
             otp: document.getElementById('otp').value.trim(),
-            floor: floorSelect.value,
+            floor: parseInt(floorSelect.value),
             room: roomSelect.value,
             password: passwordInput.value
         };
 
-        console.log('Signup Data:', formData);
-        showNotification('Account created successfully! Redirecting...', 'success');
+        // Show loading
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating Account...';
 
-        // Redirect to login or dashboard (replace with actual logic)
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 2000);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Save token
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                showNotification('Account created successfully! Redirecting...', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'menu.html';
+                }, 2000);
+            } else {
+                throw new Error(data.message || 'Signup failed');
+            }
+        } catch (error) {
+            console.error('Signup Error:', error);
+            showNotification(error.message || 'Signup failed. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     });
 }
 
@@ -123,7 +182,7 @@ function initSignupPage() {
 function initLoginPage() {
     const form = document.getElementById('loginForm');
 
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const email = document.getElementById('email').value.trim();
@@ -140,23 +199,42 @@ function initLoginPage() {
             return;
         }
 
-        // Login data
-        const loginData = {
-            email,
-            password,
-            remember
-        };
+        // Show loading
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Logging in...';
 
-        console.log('Login Data:', loginData);
-        showNotification('Logging in...', 'info');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
 
-        // Simulate login (replace with actual API call)
-        setTimeout(() => {
-            showNotification('Login successful! Redirecting...', 'success');
-            setTimeout(() => {
-                window.location.href = 'menu.html'; // or dashboard
-            }, 1500);
-        }, 1000);
+            const data = await response.json();
+
+            if (response.ok) {
+                // Save token
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                showNotification('Login successful! Redirecting...', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'menu.html';
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login Error:', error);
+            showNotification(error.message || 'Login failed. Please check your credentials.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     });
 }
 
