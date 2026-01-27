@@ -87,19 +87,30 @@ function addMobileMenuStyles() {
             top: 70px;
             left: 0;
             right: 0;
-            background: white;
+            background: #0f0f0f;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             opacity: 0;
             transform: translateY(-20px);
             transition: all 0.3s ease;
             z-index: 999;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .mobile-menu.open {
             opacity: 1;
             transform: translateY(0);
         }
+
+        .mobile-menu .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .mobile-menu .nav-link:hover {
+            color: #f97316;
+        }
+
         
         .mobile-menu .nav-links {
             display: flex;
