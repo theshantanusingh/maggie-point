@@ -95,7 +95,9 @@
 }
 
 /* === RESET & BASE === */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -117,19 +119,41 @@ body {
     overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-primary);
     font-weight: 700;
     line-height: 1.2;
     color: var(--gray-900);
 }
 
-h1 { font-size: 3.5rem; }
-h2 { font-size: 2.5rem; }
-h3 { font-size: 1.875rem; }
-h4 { font-size: 1.5rem; }
-h5 { font-size: 1.25rem; }
-h6 { font-size: 1rem; }
+h1 {
+    font-size: 3.5rem;
+}
+
+h2 {
+    font-size: 2.5rem;
+}
+
+h3 {
+    font-size: 1.875rem;
+}
+
+h4 {
+    font-size: 1.5rem;
+}
+
+h5 {
+    font-size: 1.25rem;
+}
+
+h6 {
+    font-size: 1rem;
+}
 
 a {
     color: inherit;
@@ -194,24 +218,24 @@ button {
 
 .btn-outline {
     background: transparent;
-    color: var(--gray-800);
-    border: 2px solid var(--gray-300);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-outline:hover {
-    border-color: var(--primary-500);
-    color: var(--primary-600);
-    background: var(--primary-50);
+    border-color: rgba(249, 115, 22, 0.5);
+    color: #f97316;
+    background: rgba(249, 115, 22, 0.1);
 }
 
 .btn-ghost {
     background: transparent;
-    color: var(--gray-700);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .btn-ghost:hover {
-    background: var(--gray-100);
-    color: var(--gray-900);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
 .btn-white {
@@ -251,20 +275,19 @@ button {
 }
 
 .section-title {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-size: 2.25rem;
+    font-weight: 700;
     margin-bottom: var(--spacing-md);
-    background: var(--gradient-sunset);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
+    letter-spacing: -0.02em;
 }
 
 .section-description {
-    font-size: 1.125rem;
-    color: var(--gray-600);
-    max-width: 600px;
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 550px;
     margin: 0 auto;
+    line-height: 1.7;
 }
 
 /* === ANIMATIONS === */
@@ -273,6 +296,7 @@ button {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -280,8 +304,13 @@ button {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideInRight {
@@ -289,6 +318,7 @@ button {
         opacity: 0;
         transform: translateX(30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -296,43 +326,87 @@ button {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 /* === RESPONSIVE === */
 @media (max-width: 1024px) {
-    h1 { font-size: 2.5rem; }
-    h2 { font-size: 2rem; }
-    h3 { font-size: 1.5rem; }
-    
-    .section-title { font-size: 2rem; }
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
 }
 
 @media (max-width: 768px) {
-    html { font-size: 14px; }
-    
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.75rem; }
-    h3 { font-size: 1.25rem; }
-    
+    html {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
     .container {
         padding: 0 var(--spacing-md);
     }
-    
-    .section-title { font-size: 1.75rem; }
-    .section-description { font-size: 1rem; }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .section-description {
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
-    h1 { font-size: 1.75rem; }
-    h2 { font-size: 1.5rem; }
-    
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
     .btn-large {
         padding: 0.875rem 1.5rem;
         font-size: 1rem;

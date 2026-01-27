@@ -164,11 +164,6 @@ function initSignupPage() {
         }
     });
 
-    // Password Strength Indicator
-    passwordInput.addEventListener('input', function () {
-        updatePasswordStrength(this.value);
-    });
-
     // Form Submission
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -414,8 +409,8 @@ function validateSignupForm() {
         return false;
     }
 
-    if (password.length < 8) {
-        showNotification('Password must be at least 8 characters', 'error');
+    if (password.length < 4) {
+        showNotification('Password must be at least 4 characters', 'error');
         return false;
     }
 
