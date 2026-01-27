@@ -87,7 +87,7 @@ function addMobileMenuStyles() {
             top: 70px;
             left: 0;
             right: 0;
-            background: #0f0f0f;
+            background: #0f0f0f !important;
             padding: 2rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             opacity: 0;
@@ -101,22 +101,23 @@ function addMobileMenuStyles() {
             opacity: 1;
             transform: translateY(0);
         }
-
-        .mobile-menu .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1rem;
-        }
-
-        .mobile-menu .nav-link:hover {
-            color: #f97316;
-        }
-
         
         .mobile-menu .nav-links {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             margin-bottom: 2rem;
+        }
+        
+        .mobile-menu .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 1.1rem !important;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .mobile-menu .nav-link:hover {
+            color: #f97316 !important;
         }
         
         .mobile-menu .nav-actions {
@@ -128,6 +129,24 @@ function addMobileMenuStyles() {
         .mobile-menu .btn {
             width: 100%;
             justify-content: center;
+        }
+
+        .mobile-menu .btn-ghost {
+            background: transparent !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .mobile-menu .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .mobile-menu .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
         }
         
         .mobile-menu-toggle.active span:nth-child(1) {
