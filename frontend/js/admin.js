@@ -895,8 +895,14 @@ async function loadInventory() {
         const response = await fetch(`${API_BASE_URL}/api/admin/inventory`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `Server error ${response.status}`);
+        }
+
         const data = await response.json();
-        inventoryData = data.inventory;
+        inventoryData = data.inventory || [];
         renderInventory();
     } catch (error) {
         list.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">Error: ${error.message}</p>`;
@@ -905,7 +911,7 @@ async function loadInventory() {
 
 function renderInventory() {
     const list = document.getElementById('inventoryList');
-    if (inventoryData.length === 0) {
+    if (!inventoryData || inventoryData.length === 0) {
         list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No items found. Click + Add Item to start.</p>';
         return;
     }
@@ -1005,11 +1011,17 @@ async function loadFinance(search = '') {
         const response = await fetch(`${API_BASE_URL}/api/admin/finance/payments?search=${search}`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `Server error ${response.status}`);
+        }
+
         const data = await response.json();
 
-        document.getElementById('totalRevenue').textContent = `₹${data.totalRevenue}`;
+        document.getElementById('totalRevenue').textContent = `₹${data.totalRevenue || 0}`;
 
-        if (data.payments.length === 0) {
+        if (!data.payments || data.payments.length === 0) {
             table.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #666;">No payment entries found.</td></tr>';
             return;
         }
