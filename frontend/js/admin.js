@@ -147,6 +147,8 @@ function initNavigation() {
                 'users': 'Manage Users',
                 'admins': 'Admin Users',
                 'activities': 'Activity Feed',
+                'inventory': 'Inventory Tracking',
+                'finance': 'Financial Records',
                 'logs': 'System Logs'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
@@ -157,6 +159,8 @@ function initNavigation() {
             else if (sectionId === 'users') loadUsers();
             else if (sectionId === 'admins') loadAdmins();
             else if (sectionId === 'activities') loadActivities();
+            else if (sectionId === 'inventory') loadInventory();
+            else if (sectionId === 'finance') loadFinance();
             else if (sectionId === 'logs') loadLogs();
         });
     });
@@ -878,3 +882,174 @@ document.getElementById('userSearch')?.addEventListener('input', function (e) {
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 });
+
+// === INVENTORY ===
+let inventoryData = [];
+
+async function loadInventory() {
+    const list = document.getElementById('inventoryList');
+    if (!list) return;
+    list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">Loading inventory...</p>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/inventory`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await response.json();
+        inventoryData = data.inventory;
+        renderInventory();
+    } catch (error) {
+        list.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">Error: ${error.message}</p>`;
+    }
+}
+
+function renderInventory() {
+    const list = document.getElementById('inventoryList');
+    if (inventoryData.length === 0) {
+        list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No items found. Click + Add Item to start.</p>';
+        return;
+    }
+
+    list.innerHTML = inventoryData.map(item => {
+        const isLow = item.quantity <= item.minThreshold;
+        return `
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid ${isLow ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.1)'}; padding: 20px; border-radius: 12px; position: relative; overflow: hidden;">
+            ${isLow ? '<div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #ef4444;"></div>' : ''}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-size: 11px; color: #666; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">${item.category}</span>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="editInventoryItem('${item._id}')" style="background: none; border: none; color: #666; cursor: pointer; padding: 4px;">✏️</button>
+                    <button onclick="deleteInventoryItem('${item._id}')" style="background: none; border: none; color: #666; cursor: pointer; padding: 4px;">🗑️</button>
+                </div>
+            </div>
+            <h3 style="font-size: 18px; margin-bottom: 5px; color: white;">${item.name}</h3>
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 28px; font-weight: 700; color: ${isLow ? '#ef4444' : '#f97316'}">${item.quantity}</span>
+                <span style="color: #666; font-size: 14px;">${item.unit}</span>
+            </div>
+            ${isLow ? `<p style="font-size: 11px; color: #ef4444; margin-top: 10px; font-weight: 600;">⚠️ LOW STOCK (Min: ${item.minThreshold})</p>` : ''}
+            <div style="margin-top: 15px; grid-template-columns: 1fr 1fr; display: grid; gap: 10px;">
+                <button class="btn btn-outline btn-small" onclick="updateStock('${item._id}', 1)">+ Add</button>
+                <button class="btn btn-outline btn-small" onclick="updateStock('${item._id}', -1)">- Remove</button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+function openInventoryModal() {
+    document.getElementById('inventoryForm').reset();
+    document.getElementById('inventoryModalTitle').textContent = 'Add Inventory Item';
+    document.getElementById('inventoryModal').classList.add('active');
+}
+
+function closeInventoryModal() {
+    document.getElementById('inventoryModal').classList.remove('active');
+}
+
+async function updateStock(id, change) {
+    const item = inventoryData.find(i => i._id === id);
+    if (!item) return;
+
+    const newQty = Math.max(0, item.quantity + change);
+    try {
+        await fetch(`${API_BASE_URL}/api/admin/inventory/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ quantity: newQty, name: item.name })
+        });
+        loadInventory();
+    } catch (e) {
+        alert('Stock update failed');
+    }
+}
+
+document.getElementById('inventoryForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('invName').value,
+        quantity: parseFloat(document.getElementById('invQuantity').value),
+        unit: document.getElementById('invUnit').value,
+        category: document.getElementById('invCategory').value,
+        minThreshold: parseFloat(document.getElementById('invThreshold').value)
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/inventory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(data)
+        });
+        if (response.ok) {
+            closeInventoryModal();
+            loadInventory();
+        }
+    } catch (e) {
+        alert('Failed to save item');
+    }
+});
+
+// === FINANCE ===
+async function loadFinance(search = '') {
+    const table = document.getElementById('paymentTable');
+    if (!table) return;
+    table.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">Fetching records...</td></tr>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/finance/payments?search=${search}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await response.json();
+
+        document.getElementById('totalRevenue').textContent = `₹${data.totalRevenue}`;
+
+        if (data.payments.length === 0) {
+            table.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #666;">No payment entries found.</td></tr>';
+            return;
+        }
+
+        table.innerHTML = data.payments.map(p => `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 15px; font-size: 13px; color: #666;">${new Date(p.createdAt).toLocaleDateString()}</td>
+                <td style="padding: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: 600; color: white;">${p.userId?.firstName} ${p.userId?.lastName}</span>
+                        <span style="font-size: 11px; color: #666;">${p.userId?.email}</span>
+                    </div>
+                </td>
+                <td style="padding: 15px; font-family: monospace; color: #f97316;">${p.paymentDetails.utrNumber}</td>
+                <td style="padding: 15px; font-weight: 700; color: white;">₹${p.totalAmount}</td>
+                <td style="padding: 15px;">
+                    <span style="background: ${p.paymentDetails.paymentVerified ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; color: ${p.paymentDetails.paymentVerified ? '#22c55e' : '#ef4444'}; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;">
+                        ${p.paymentDetails.paymentVerified ? 'VERIFIED' : 'PENDING'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        table.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${error.message}</td></tr>`;
+    }
+}
+
+document.getElementById('financeSearch')?.addEventListener('input', (e) => {
+    loadFinance(e.target.value);
+});
+
+async function deleteInventoryItem(id) {
+    if (!confirm('Are you sure you want to remove this item from inventory?')) return;
+    try {
+        await fetch(`${API_BASE_URL}/api/admin/inventory/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        loadInventory();
+    } catch (e) {
+        alert('Deletion failed');
+    }
+}

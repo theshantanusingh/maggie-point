@@ -13,6 +13,7 @@ const activitySchema = new mongoose.Schema({
             'LOGIN', 'LOGOUT', 'SIGNUP',
             'ORDER_PLACED', 'ORDER_STATUS_UPDATED', 'ORDER_CANCELLED', 'PAYMENT_SUBMITTED', 'PAYMENT_VERIFIED',
             'DISH_CREATED', 'DISH_UPDATED', 'DISH_DELETED',
+            'INVENTORY_ADDED', 'INVENTORY_UPDATED', 'INVENTORY_DELETED',
             'USER_PROMOTED', 'USER_DEMOTED', 'USER_DELETED', 'PASSWORD_RESET'
         ]
     },

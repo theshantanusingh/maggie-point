@@ -402,7 +402,42 @@ router.get('/stats', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
-// ===== LOG MANAGEMENT =====
+// ===== FINANCE & PAYMENTS =====
+
+// Get all payments (order payments)
+router.get('/finance/payments', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const Order = require('../models/Order');
+        const { search } = req.query;
+
+        let query = { 'paymentDetails.utrNumber': { $exists: true, $ne: '' } };
+
+        if (search) {
+            query.$or = [
+                { 'paymentDetails.utrNumber': { $regex: search, $options: 'i' } },
+                { 'paymentDetails.transactionId': { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const payments = await Order.find(query)
+            .sort({ createdAt: -1 })
+            .populate('userId', 'firstName lastName email');
+
+        // Calculate total verified revenue
+        const totalRevenueResult = await Order.aggregate([
+            { $match: { 'paymentDetails.paymentVerified': true } },
+            { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]);
+
+        res.json({
+            payments,
+            totalRevenue: totalRevenueResult[0]?.total || 0
+        });
+    } catch (error) {
+        logger.error(`Get Finance Error: ${error.message}`);
+        res.status(500).json({ message: 'Failed to fetch finance records', error: error.message });
+    }
+});
 
 // ===== ACTIVITY FEED =====
 
