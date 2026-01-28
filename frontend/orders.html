@@ -176,7 +176,10 @@
             }
 
             try {
-                const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+                const host = window.location.hostname;
+                const API_URL = (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || /^\d+\.\d+\.\d+\.\d+$/.test(host))
+                    ? `http://${host}:3000`
+                    : '';
                 const response = await fetch(`${API_URL}/api/orders/my-orders`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

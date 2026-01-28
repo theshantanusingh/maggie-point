@@ -2,9 +2,9 @@
    auth.js - Authentication Logic
    =================================== */
 
-// API Base URL - Auto-detects environment
-const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
-    ? 'http://localhost:3000'
+const host = window.location.hostname;
+const API_BASE_URL = (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || /^\d+\.\d+\.\d+\.\d+$/.test(host))
+    ? `http://${host}:3000`
     : '';
 
 document.addEventListener('DOMContentLoaded', function () {

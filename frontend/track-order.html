@@ -264,8 +264,8 @@
                 }
 
                 const host = window.location.hostname;
-                const API_URL = (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.'))
-                    ? 'http://localhost:3000'
+                const API_URL = (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || /^\d+\.\d+\.\d+\.\d+$/.test(host))
+                    ? `http://${host}:3000`
                     : '';
 
                 const response = await fetch(`${API_URL}/api/orders/${id}`, {
@@ -325,6 +325,19 @@
             };
             document.getElementById('statusTitle').textContent = titles[status] || status;
             document.getElementById('orderId').textContent = '#' + order._id.slice(-6).toUpperCase();
+
+            // Invoice Button
+            if (order.paymentDetails?.paymentVerified) {
+                const invoiceBtnId = 'invoiceBtnBox';
+                let btnBox = document.getElementById(invoiceBtnId);
+                if (!btnBox) {
+                    btnBox = document.createElement('div');
+                    btnBox.id = invoiceBtnId;
+                    btnBox.style.marginTop = '20px';
+                    document.getElementById('statusDesc').after(btnBox);
+                }
+                btnBox.innerHTML = `<a href="/invoice.html?id=${order._id}" target="_blank" class="btn btn-outline" style="font-size: 13px; padding: 8px 20px;">📄 View Invoice</a>`;
+            }
 
             // Items
             const itemsList = document.getElementById('itemsList');
