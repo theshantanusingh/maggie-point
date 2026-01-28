@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initMobileMenu();
     initScrollAnimations();
     initSmoothScroll();
+    loadMenu();
 });
 
 /* === NAVBAR === */
@@ -364,6 +365,54 @@ function isInViewport(element) {
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
         rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
+}
+
+/* === LOAD MENU FROM API === */
+async function loadMenu() {
+    const menuGrid = document.getElementById('menuGrid');
+
+    if (!menuGrid) return; // Not on landing page
+
+    try {
+        const API_BASE_URL = window.location.hostname === 'maggiepoint.onessa.agency'
+            ? ''
+            : 'http://localhost:3000';
+
+        const response = await fetch(`${API_BASE_URL}/api/admin/dishes/available`);
+
+        if (!response.ok) {
+            throw new Error('Failed to load menu');
+        }
+
+        const data = await response.json();
+        const dishes = data.dishes || [];
+
+        if (dishes.length === 0) {
+            menuGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.6);">No dishes available at the moment. Please check back later!</div>';
+            return;
+        }
+
+        // Limit to 6 dishes for landing page
+        const displayDishes = dishes.slice(0, 6);
+
+        menuGrid.innerHTML = displayDishes.map(dish => `
+            <div class="menu-item">
+                <div class="menu-item-image">${dish.emoji || '🍜'}</div>
+                <div class="menu-item-content">
+                    <h3 class="menu-item-title">${dish.name}</h3>
+                    <p class="menu-item-desc">${dish.description}</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₹${dish.price}</span>
+                        <button class="btn btn-small btn-primary">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Load Menu Error:', error);
+        menuGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.6);">Unable to load menu. Please try again later.</div>';
+    }
 }
 
 /* === CONSOLE GREETING === */
