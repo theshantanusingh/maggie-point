@@ -97,6 +97,27 @@ function initNavigation() {
     });
 }
 
+const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+let lastOrderId = null;
+
+// Global Timer Interval
+setInterval(() => {
+    document.querySelectorAll('.admin-timer').forEach(el => {
+        const endTime = parseInt(el.dataset.end);
+        if (!endTime) return;
+
+        const diff = endTime - Date.now();
+        if (diff > 0) {
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            el.textContent = "00:00";
+            el.style.color = '#ef4444';
+        }
+    });
+}, 1000);
+
 // === ORDERS MANAGEMENT ===
 async function loadOrders() {
     try {
@@ -105,6 +126,19 @@ async function loadOrders() {
         });
         if (response.ok) {
             const data = await response.json();
+
+            // Check for new orders (simple check: if latest ID changes)
+            if (data.orders.length > 0) {
+                const latestId = data.orders[0]._id;
+                // Play sound if ID changed and we aren't loading for first time (lastOrderId is set)
+                if (lastOrderId && latestId !== lastOrderId) {
+                    alertSound.play().catch(e => console.log('Audio error:', e));
+                }
+                lastOrderId = latestId;
+            } else {
+                lastOrderId = "none";
+            }
+
             allOrders = data.orders;
 
             // Filter based on active chip
@@ -142,7 +176,17 @@ function renderOrders(orders) {
         return;
     }
 
-    grid.innerHTML = orders.map(order => `
+    grid.innerHTML = orders.map(order => {
+        // Calculate timer end time if active
+        let timerHtml = '';
+        if (['confirmed', 'preparing', 'out_for_delivery'].includes(order.status)) {
+            const startTime = new Date(order.preparingAt || order.confirmedAt || Date.now()).getTime();
+            const estMins = order.estimatedDeliveryTime || 10;
+            const endTime = startTime + (estMins * 60000);
+            timerHtml = `<div class="admin-timer" data-end="${endTime}" style="font-size: 24px; font-weight: 800; color: #f97316; margin: 10px 0; font-family: monospace;">--:--</div>`;
+        }
+
+        return `
         <div class="order-card" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
             <div style="display:flex; justify-content:space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1)">
                 <div>
@@ -163,8 +207,11 @@ function renderOrders(orders) {
                     <div style="color:rgba(255,255,255,0.5); font-size:12px">Payment</div>
                     <div style="font-weight:600; color:#f97316">₹${order.totalAmount}</div>
                     ${order.paymentDetails?.utrNumber ? `<div style="font-size:13px; background:rgba(249,115,22,0.1); padding:4px; border-radius:4px; margin-top:5px">UTR: ${order.paymentDetails.utrNumber}</div>` : '<div style="font-size:13px; color:rgba(255,255,255,0.5)">No UTR</div>'}
+                    ${order.deliveryType === 'takeaway' ? '<div style="margin-top:5px; background: #3b82f6; color:white; padding: 2px 6px; border-radius: 4px; display:inline-block; font-size: 12px;">Takeaway</div>' : '<div style="margin-top:5px; background: #8b5cf6; color:white; padding: 2px 6px; border-radius: 4px; display:inline-block; font-size: 12px;">Room Delivery</div>'}
                 </div>
             </div>
+
+            ${timerHtml}
 
             <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:15px">
                 ${order.items.map(i => `<div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px"><span>${i.quantity}x ${i.name}</span><span>₹${i.price * i.quantity}</span></div>`).join('')}
@@ -184,16 +231,16 @@ function renderOrders(orders) {
                     ` : ''}
 
                     ${(order.status === 'confirmed') ?
-            `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'preparing')">👨‍🍳 Prepare</button>` : ''}
+                `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'preparing')">👨‍🍳 Prepare</button>` : ''}
                     
                     ${(order.status === 'preparing') ?
-            `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'out_for_delivery')">🛵 Send</button>` : ''}
+                `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'out_for_delivery')">🛵 Send</button>` : ''}
                     
                     ${(order.status === 'out_for_delivery') ?
-            `<button class="btn btn-success btn-small" onclick="updateOrderStatus('${order._id}', 'delivered')">🎉 Done</button>` : ''}
+                `<button class="btn btn-success btn-small" onclick="updateOrderStatus('${order._id}', 'delivered')">🎉 Done</button>` : ''}
 
                     ${order.status !== 'cancelled' && order.status !== 'delivered' ?
-            `<button class="btn btn-ghost btn-small" style="color:#ef4444" onclick="updateOrderStatus('${order._id}', 'cancelled')">❌ Cancel</button>` : ''}
+                `<button class="btn btn-ghost btn-small" style="color:#ef4444" onclick="updateOrderStatus('${order._id}', 'cancelled')">❌ Cancel</button>` : ''}
                 </div>
             </div>
         </div>
