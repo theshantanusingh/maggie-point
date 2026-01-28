@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Full Menu - Maggie Point">
+    <meta name="description" content="Explore our delicious menu - Maggie Point | Late night food delivery for hostels">
     <title>Our Menu - Maggie Point</title>
     <link rel="stylesheet" href="css/main.css">
-    <!-- Reuse main css but maybe add specific menu styles if needed -->
     <link rel="stylesheet" href="css/landing.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,33 +14,272 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
-        .menu-page-header {
-            padding-top: 120px;
-            padding-bottom: 2rem;
+        /* Menu Page Specific Styles */
+        .menu-hero {
+            padding: 160px 0 80px;
+            background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
             text-align: center;
-            background: #0f0f0f;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .menu-hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .menu-hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .menu-content {
+            background: #0a0a0a;
+            padding: 4rem 0 6rem;
+            min-height: 50vh;
         }
 
         .category-section {
-            padding: 3rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 4rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
         }
 
         .category-title {
-            font-size: 2rem;
-            color: #f97316;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
         }
 
-        .category-title::after {
-            content: '';
+        .category-count {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+        }
+
+        .category-line {
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, #f97316 0%, transparent 100%);
-            opacity: 0.3;
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.5) 0%, transparent 100%);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .menu-card {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.6) 0%, rgba(15, 15, 15, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .menu-card:hover {
+            border-color: rgba(249, 115, 22, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-card-emoji {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.05) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .menu-card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-card-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-card-description {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.5;
+            flex: 1;
+            margin-bottom: 1rem;
+        }
+
+        .menu-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-card-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .menu-card-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-card-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(249, 115, 22, 0.2);
+            border-top-color: #f97316;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 1.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(249, 115, 22, 0.1);
+            border-color: rgba(249, 115, 22, 0.3);
+            color: #f97316;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .menu-hero {
+                padding: 140px 0 60px;
+            }
+
+            .menu-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .menu-card-emoji {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto;
+            }
+
+            .menu-card-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .category-header {
+                flex-wrap: wrap;
+            }
+
+            .category-line {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -57,7 +295,7 @@
 
             <div class="nav-links">
                 <a href="/" class="nav-link">Home</a>
-                <a href="/menu.html" class="nav-link active">Menu</a>
+                <a href="/menu" class="nav-link active">Menu</a>
                 <a href="/#features" class="nav-link">Features</a>
                 <a href="/#reviews" class="nav-link">Reviews</a>
             </div>
@@ -74,22 +312,36 @@
         </div>
     </nav>
 
-    <!-- Header -->
-    <section class="menu-page-header">
+    <!-- Hero Section -->
+    <section class="menu-hero">
         <div class="container">
-            <h1 class="hero-title">Our Full <span class="text-gradient">Menu</span></h1>
-            <p class="hero-subtitle">Explore our delicious range of late-night cravings</p>
+            <h1 class="menu-hero-title">Our <span class="text-gradient">Delicious</span> Menu</h1>
+            <p class="menu-hero-subtitle">From classic maggie to refreshing beverages, we've got your late-night
+                cravings covered</p>
         </div>
     </section>
 
     <!-- Menu Content -->
-    <div id="fullMenuContainer" style="background: #0a0a0a; min-height: 60vh;">
-        <!-- Categories will be injected here -->
-        <div class="container" style="text-align: center; padding: 4rem;">
-            <div class="loading-spinner"></div>
-            <p style="color: rgba(255,255,255,0.6); margin-top: 1rem;">Loading delicious dishes...</p>
+    <section class="menu-content">
+        <div class="container">
+            <!-- Filter Bar -->
+            <div class="filter-bar" id="filterBar">
+                <button class="filter-btn active" data-filter="all">All Items</button>
+                <button class="filter-btn" data-filter="Maggie">🍜 Maggie</button>
+                <button class="filter-btn" data-filter="Snacks">🍿 Snacks</button>
+                <button class="filter-btn" data-filter="Beverages">☕ Beverages</button>
+                <button class="filter-btn" data-filter="Combo">🎁 Combos</button>
+            </div>
+
+            <!-- Menu Container -->
+            <div id="menuContainer">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Loading delicious dishes...</p>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -102,27 +354,42 @@
                     </a>
                     <p class="footer-desc">Delivering happiness to your hostel room, one bowl at a time.</p>
                 </div>
-                <!-- ... footer content same as index ... -->
                 <div class="footer-links">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul>
                         <li><a href="/">Home</a></li>
-                        <li><a href="/menu.html">Menu</a></li>
+                        <li><a href="/menu">Full Menu</a></li>
                         <li><a href="/login">Login</a></li>
+                        <li><a href="/signup">Sign Up</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Contact</h4>
+                    <ul>
+                        <li><a href="#">📍 Amity University Campus</a></li>
+                        <li><a href="#">📞 +91 98765 43210</a></li>
+                        <li><a href="#">✉️ hello@maggiepoint.com</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Maggie Point. All rights reserved.</p>
+                <p>&copy; 2024 Maggie Point. Made with ❤️ for hostel students.</p>
             </div>
         </div>
     </footer>
 
     <script src="js/app.js"></script>
     <script>
-        // Custom script for menu page
+        let allDishes = [];
+        let currentFilter = 'all';
+
         document.addEventListener('DOMContentLoaded', async () => {
-            const container = document.getElementById('fullMenuContainer');
+            await loadMenu();
+            initFilters();
+        });
+
+        async function loadMenu() {
+            const container = document.getElementById('menuContainer');
 
             try {
                 const API_BASE_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
@@ -131,68 +398,118 @@
                 if (!response.ok) throw new Error('Failed to load menu');
 
                 const data = await response.json();
-                const dishes = data.dishes || [];
+                allDishes = data.dishes || [];
 
-                if (dishes.length === 0) {
-                    container.innerHTML = '<div class="container" style="text-align:center; padding: 4rem; color:white;">No dishes available currently.</div>';
+                if (allDishes.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">😴</div>
+                            <h3>No dishes available right now</h3>
+                            <p>Check back soon for our delicious menu!</p>
+                        </div>
+                    `;
                     return;
                 }
 
-                // Group by category
-                const categories = {};
-                dishes.forEach(dish => {
-                    if (!categories[dish.category]) categories[dish.category] = [];
-                    categories[dish.category].push(dish);
-                });
-
-                let html = '';
-                const categoryOrder = ['Maggie', 'Snacks', 'Beverages', 'Combo'];
-
-                // Sort categories based on predefined order, then others
-                const sortedKeys = Object.keys(categories).sort((a, b) => {
-                    const idxA = categoryOrder.indexOf(a);
-                    const idxB = categoryOrder.indexOf(b);
-                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-                    if (idxA !== -1) return -1;
-                    if (idxB !== -1) return 1;
-                    return a.localeCompare(b);
-                });
-
-                sortedKeys.forEach(cat => {
-                    html += `
-                        <section class="category-section">
-                            <div class="container">
-                                <h2 class="category-title">${cat}</h2>
-                                <div class="menu-grid">
-                                    ${categories[cat].map(dish => `
-                                        <div class="menu-item">
-                                            <div class="menu-item-image">${dish.emoji || '🍜'}</div>
-                                            <div class="menu-item-content">
-                                                <h3 class="menu-item-title">${dish.name}</h3>
-                                                <p class="menu-item-desc">${dish.description}</p>
-                                                <div class="menu-item-footer">
-                                                    <span class="menu-item-price">₹${dish.price}</span>
-                                                    <button class="btn btn-small btn-primary">Add to Cart</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </section>
-                    `;
-                });
-
-                container.innerHTML = html;
-
-                // Re-init animations for new elements if needed
-                if (window.initScrollAnimations) window.initScrollAnimations();
+                renderMenu(allDishes);
 
             } catch (error) {
                 console.error('Menu Load Error:', error);
-                container.innerHTML = '<div class="container" style="text-align:center; padding: 4rem; color: rgba(255,255,255,0.7);">Failed to load menu. Please refresh page.</div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Oops! Something went wrong</h3>
+                        <p>Please refresh the page to try again.</p>
+                    </div>
+                `;
             }
-        });
+        }
+
+        function renderMenu(dishes) {
+            const container = document.getElementById('menuContainer');
+
+            // Group by category
+            const categories = {};
+            const categoryEmojis = {
+                'Maggie': '🍜',
+                'Snacks': '🍿',
+                'Beverages': '☕',
+                'Combo': '🎁'
+            };
+
+            dishes.forEach(dish => {
+                const cat = dish.category || 'Other';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push(dish);
+            });
+
+            // Sort categories
+            const categoryOrder = ['Maggie', 'Snacks', 'Beverages', 'Combo'];
+            const sortedKeys = Object.keys(categories).sort((a, b) => {
+                const idxA = categoryOrder.indexOf(a);
+                const idxB = categoryOrder.indexOf(b);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+
+            let html = '';
+
+            sortedKeys.forEach(cat => {
+                html += `
+                    <div class="category-section" data-category="${cat}">
+                        <div class="category-header">
+                            <div class="category-icon">${categoryEmojis[cat] || '🍽️'}</div>
+                            <div>
+                                <h2 class="category-title">${cat}</h2>
+                                <p class="category-count">${categories[cat].length} item${categories[cat].length > 1 ? 's' : ''}</p>
+                            </div>
+                            <div class="category-line"></div>
+                        </div>
+                        <div class="menu-grid">
+                            ${categories[cat].map(dish => `
+                                <div class="menu-card">
+                                    <div class="menu-card-emoji">${dish.emoji || '🍜'}</div>
+                                    <div class="menu-card-content">
+                                        <h3 class="menu-card-name">${dish.name}</h3>
+                                        <p class="menu-card-description">${dish.description}</p>
+                                        <div class="menu-card-footer">
+                                            <span class="menu-card-price">₹${dish.price}</span>
+                                            <button class="menu-card-btn">Add to Cart</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function initFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    // Update active state
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const filter = this.dataset.filter;
+                    currentFilter = filter;
+
+                    if (filter === 'all') {
+                        renderMenu(allDishes);
+                    } else {
+                        const filtered = allDishes.filter(d => d.category === filter);
+                        renderMenu(filtered);
+                    }
+                });
+            });
+        }
     </script>
 </body>
 
