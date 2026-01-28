@@ -45,6 +45,16 @@ npm run dev
 }
 ```
 
+#### Verify OTP
+- **POST** `/auth/verify-otp`
+- Body:
+```json
+{
+  "email": "user@example.com",
+  "otp": "123456"
+}
+```
+
 #### Signup
 - **POST** `/auth/signup`
 - Body:
@@ -53,6 +63,7 @@ npm run dev
   "firstName": "John",
   "lastName": "Doe",
   "email": "user@example.com",
+  "mobile": "9876543210",
   "otp": "123456",
   "floor": 3,
   "room": "305",
@@ -72,6 +83,51 @@ npm run dev
 
 #### Get All Users
 - **GET** `/auth/users` - View all registered users (for admin/testing)
+
+## Troubleshooting
+
+### Server not responding / Route not found errors
+
+1. **Check if backend is running:**
+```bash
+ps aux | grep node
+```
+
+2. **Check backend logs:**
+```bash
+cd /var/www/maggie-point/backend
+node server.js
+```
+
+3. **Verify .env file exists in backend directory:**
+```bash
+ls -la /var/www/maggie-point/backend/.env
+```
+
+4. **Test direct backend access:**
+```bash
+curl http://localhost:3000/health
+```
+
+5. **Check NGINX is proxying correctly:**
+```bash
+curl https://maggiepoint.onessa.agency/api/health
+```
+
+### Start server automatically
+
+Use the provided script:
+```bash
+cd /var/www/maggie-point/backend
+chmod +x start-server.sh
+./start-server.sh
+```
+
+Or run in background:
+```bash
+cd /var/www/maggie-point/backend
+nohup node server.js > server.log 2>&1 &
+```
 
 ## Email Templates
 
