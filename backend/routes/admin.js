@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const { auth, isAdmin } = require('../middleware/auth');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const User = require('../models/User');
 const Dish = require('../models/Dish');
 
@@ -30,7 +30,7 @@ router.get('/dishes/available', async (req, res) => {
 });
 
 // Create dish (admin only)
-router.post('/dishes', auth, isAdmin, async (req, res) => {
+router.post('/dishes', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { name, description, price, category, emoji } = req.body;
 
@@ -44,7 +44,7 @@ router.post('/dishes', auth, isAdmin, async (req, res) => {
             price,
             category,
             emoji: emoji || '🍜',
-            createdBy: req.user._id
+            createdBy: req.user.userId
         });
 
         res.status(201).json({
@@ -58,7 +58,7 @@ router.post('/dishes', auth, isAdmin, async (req, res) => {
 });
 
 // Update dish (admin only)
-router.put('/dishes/:id', auth, isAdmin, async (req, res) => {
+router.put('/dishes/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { name, description, price, category, emoji, isAvailable } = req.body;
 
@@ -83,7 +83,7 @@ router.put('/dishes/:id', auth, isAdmin, async (req, res) => {
 });
 
 // Delete dish (admin only)
-router.delete('/dishes/:id', auth, isAdmin, async (req, res) => {
+router.delete('/dishes/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const dish = await Dish.findByIdAndDelete(req.params.id);
 
@@ -101,7 +101,7 @@ router.delete('/dishes/:id', auth, isAdmin, async (req, res) => {
 // ===== USER MANAGEMENT =====
 
 // Get all users (admin only)
-router.get('/users', auth, isAdmin, async (req, res) => {
+router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
         res.json({
@@ -115,7 +115,7 @@ router.get('/users', auth, isAdmin, async (req, res) => {
 });
 
 // Get single user (admin only)
-router.get('/users/:id', auth, isAdmin, async (req, res) => {
+router.get('/users/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
 
@@ -131,7 +131,7 @@ router.get('/users/:id', auth, isAdmin, async (req, res) => {
 });
 
 // Update user (admin only)
-router.put('/users/:id', auth, isAdmin, async (req, res) => {
+router.put('/users/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { firstName, lastName, email, mobile, floor, room } = req.body;
 
@@ -156,7 +156,7 @@ router.put('/users/:id', auth, isAdmin, async (req, res) => {
 });
 
 // Create user (admin only) - Manual creation via helpline
-router.post('/users', auth, isAdmin, async (req, res) => {
+router.post('/users', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { firstName, lastName, email, mobile, floor, room, password, isAdmin: isStartAdmin } = req.body;
 
@@ -203,7 +203,7 @@ router.post('/users', auth, isAdmin, async (req, res) => {
 });
 
 // Reset User Password (admin only)
-router.put('/users/:id/reset-password', auth, isAdmin, async (req, res) => {
+router.put('/users/:id/reset-password', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { newPassword } = req.body;
 
@@ -232,7 +232,7 @@ router.put('/users/:id/reset-password', auth, isAdmin, async (req, res) => {
 });
 
 // Delete user (admin only)
-router.delete('/users/:id', auth, isAdmin, async (req, res) => {
+router.delete('/users/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
 
@@ -250,7 +250,7 @@ router.delete('/users/:id', auth, isAdmin, async (req, res) => {
 // ===== ADMIN MANAGEMENT =====
 
 // Get all admins (admin only)
-router.get('/admins', auth, isAdmin, async (req, res) => {
+router.get('/admins', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const admins = await User.find({ isAdmin: true }).select('-password').sort({ createdAt: -1 });
         res.json({
@@ -264,7 +264,7 @@ router.get('/admins', auth, isAdmin, async (req, res) => {
 });
 
 // Make user admin (admin only)
-router.post('/admins/promote/:userId', auth, isAdmin, async (req, res) => {
+router.post('/admins/promote/:userId', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
 
@@ -296,7 +296,7 @@ router.post('/admins/promote/:userId', auth, isAdmin, async (req, res) => {
 });
 
 // Remove admin privileges (admin only)
-router.post('/admins/demote/:userId', auth, isAdmin, async (req, res) => {
+router.post('/admins/demote/:userId', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
 
@@ -309,7 +309,7 @@ router.post('/admins/demote/:userId', auth, isAdmin, async (req, res) => {
         }
 
         // Prevent self-demotion
-        if (user._id.toString() === req.user._id.toString()) {
+        if (user._id.toString() === req.user.userId.toString()) {
             return res.status(400).json({ message: 'You cannot remove your own admin privileges' });
         }
 
@@ -335,7 +335,7 @@ router.post('/admins/demote/:userId', auth, isAdmin, async (req, res) => {
 // ===== DASHBOARD STATS =====
 
 // Get dashboard statistics (admin only)
-router.get('/stats', auth, isAdmin, async (req, res) => {
+router.get('/stats', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
         const totalAdmins = await User.countDocuments({ isAdmin: true });

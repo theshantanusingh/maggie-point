@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Verify JWT token and attach user to request
-const auth = async (req, res, next) => {
+// Verify JWT token and attach user to request
+const authenticateToken = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -17,7 +18,14 @@ const auth = async (req, res, next) => {
             return res.status(401).json({ message: 'User not found' });
         }
 
-        req.user = user;
+        req.user = {
+            userId: user._id,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            floor: user.floor,
+            room: user.room,
+            mobile: user.mobile
+        };
         next();
     } catch (error) {
         res.status(401).json({ message: 'Invalid or expired token' });
@@ -25,11 +33,11 @@ const auth = async (req, res, next) => {
 };
 
 // Check if user is admin
-const isAdmin = (req, res, next) => {
+const requireAdmin = (req, res, next) => {
     if (!req.user.isAdmin) {
         return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
     }
     next();
 };
 
-module.exports = { auth, isAdmin };
+module.exports = { authenticateToken, requireAdmin };
