@@ -76,7 +76,7 @@ router.put('/:orderId/payment', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        if (order.userId.toString() !== req.user.userId) {
+        if (order.userId.toString() !== req.user.userId.toString()) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
@@ -122,7 +122,7 @@ router.get('/:orderId', authenticateToken, async (req, res) => {
         }
 
         // Check if user owns this order or is admin
-        if (order.userId._id.toString() !== req.user.userId && !req.user.isAdmin) {
+        if (order.userId._id.toString() !== req.user.userId.toString() && !req.user.isAdmin) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
@@ -142,7 +142,7 @@ router.put('/:orderId/cancel', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        if (order.userId.toString() !== req.user.userId) {
+        if (order.userId.toString() !== req.user.userId.toString()) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
