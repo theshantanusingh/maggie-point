@@ -10,6 +10,10 @@ let currentDishId = null;
 let authToken = null;
 let allOrders = [];
 
+// Sound Notification
+const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+let lastOrderId = null;
+
 document.addEventListener('DOMContentLoaded', function () {
     checkAuth();
     initNavigation();
@@ -22,6 +26,23 @@ document.addEventListener('DOMContentLoaded', function () {
             loadOrders();
         }
     }, 30000);
+
+    // Timer Interval
+    setInterval(() => {
+        document.querySelectorAll('.admin-timer').forEach(el => {
+            const endTime = parseInt(el.dataset.end);
+            if (!endTime) return;
+            const diff = endTime - Date.now();
+            if (diff > 0) {
+                const mins = Math.floor(diff / 60000);
+                const secs = Math.floor((diff % 60000) / 1000);
+                el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                el.textContent = "00:00";
+                el.style.color = '#ef4444';
+            }
+        });
+    }, 1000);
 });
 
 // === AUTHENTICATION ===
@@ -97,27 +118,6 @@ function initNavigation() {
     });
 }
 
-const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-let lastOrderId = null;
-
-// Global Timer Interval
-setInterval(() => {
-    document.querySelectorAll('.admin-timer').forEach(el => {
-        const endTime = parseInt(el.dataset.end);
-        if (!endTime) return;
-
-        const diff = endTime - Date.now();
-        if (diff > 0) {
-            const mins = Math.floor(diff / 60000);
-            const secs = Math.floor((diff % 60000) / 1000);
-            el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-        } else {
-            el.textContent = "00:00";
-            el.style.color = '#ef4444';
-        }
-    });
-}, 1000);
-
 // === ORDERS MANAGEMENT ===
 async function loadOrders() {
     try {
@@ -127,10 +127,8 @@ async function loadOrders() {
         if (response.ok) {
             const data = await response.json();
 
-            // Check for new orders (simple check: if latest ID changes)
             if (data.orders.length > 0) {
                 const latestId = data.orders[0]._id;
-                // Play sound if ID changed and we aren't loading for first time (lastOrderId is set)
                 if (lastOrderId && latestId !== lastOrderId) {
                     alertSound.play().catch(e => console.log('Audio error:', e));
                 }
@@ -141,15 +139,12 @@ async function loadOrders() {
 
             allOrders = data.orders;
 
-            // Filter based on active chip
             const activeStatus = document.querySelector('.filter-chip.active')?.dataset.status || 'all';
             filterOrders(activeStatus);
 
-            // Update dash stats
             const pendingCount = allOrders.filter(o => o.status === 'pending' || o.status === 'payment_pending').length;
             document.getElementById('statOrders').textContent = pendingCount;
 
-            // Calc revenue
             const revenue = allOrders
                 .filter(o => o.status !== 'cancelled' && o.paymentDetails?.paymentVerified)
                 .reduce((sum, o) => sum + o.totalAmount, 0);
@@ -244,25 +239,8 @@ function renderOrders(orders) {
                 </div>
             </div>
         </div>
-    `).join('');
-}
-
-async function updateTime(orderId) {
-    const minutes = document.getElementById(`time-${orderId}`).value;
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/time`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({ minutes })
-        });
-        if (response.ok) {
-            alert('Time updated!');
-            // Don't reload entire list to keep position, just alert
-        }
-    } catch (e) { alert('Error updating time'); }
+        `;
+    }).join('');
 }
 
 async function verifyPayment(orderId) {
@@ -294,6 +272,23 @@ async function updateOrderStatus(orderId, status) {
             loadOrders();
         }
     } catch (e) { alert('Error updating status'); }
+}
+
+async function updateTime(orderId) {
+    const minutes = document.getElementById(`time-${orderId}`).value;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/time`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ minutes })
+        });
+        if (response.ok) {
+            alert('Time updated!');
+        }
+    } catch (e) { alert('Error updating time'); }
 }
 
 // === DASHBOARD ===
