@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - Maggie Point</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css"> <!-- Reuse main styles -->
+    <style>
+        .track-section {
+            padding: 120px 0 60px;
+            min-height: 100vh;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .status-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #f97316;
+        }
+
+        .status-desc {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 50px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+        }
+
+        .step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            width: 25%;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            background: #0a0a0a;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            border-color: #f97316;
+            background: #f97316;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.5);
+        }
+
+        .step.completed .step-circle {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .step.active .step-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Timer */
+        .timer-box {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+
+        /* Order Details */
+        .order-details {
+            text-align: left;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .items-list {
+            margin: 20px 0;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .step-label {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="brand-logo">🍜 MaggiePoint</a>
+            <div class="nav-links">
+                <a href="/menu" class="nav-link">Menu</a>
+                <a href="/orders" class="nav-link">My Orders</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="track-section">
+        <div class="container" style="max-width: 800px">
+            <h1 style="text-align:center; margin-bottom: 40px">Order Status</h1>
+
+            <div id="loading" style="text-align: center;">Loading status...</div>
+
+            <div id="orderContent" style="display: none;">
+                <div class="status-card">
+                    <h2 class="status-title" id="statusTitle">Order Confirmed</h2>
+                    <p class="status-desc" id="statusDesc">We have received your order</p>
+
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        <div class="step" id="step1">
+                            <div class="step-circle">✓</div>
+                            <div class="step-label">Pending</div>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-circle">✓</div>
+                            <div class="step-label">Confirmed</div>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-circle">🔥</div>
+                            <div class="step-label">Preparing</div>
+                        </div>
+                        <div class="step" id="step4">
+                            <div class="step-circle">🛵</div>
+                            <div class="step-label">Out for Delivery</div>
+                        </div>
+                    </div>
+
+                    <!-- Timer (Only Show if Preparing/Out) -->
+                    <div id="timerSection">
+                        <p>Estimated Delivery</p>
+                        <div class="timer-box" id="timer">10:00</div>
+                    </div>
+                </div>
+
+                <div class="order-details">
+                    <h3>Order Details</h3>
+                    <div class="items-list" id="itemsList">
+                        <!-- Items -->
+                    </div>
+                    <div class="detail-row"
+                        style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px">
+                        <span>Total Amount</span>
+                        <span style="color: #f97316; font-weight: 700" id="totalAmount">₹0</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Order ID</span>
+                        <span id="orderId">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('id');
+            if (!orderId) {
+                window.location.href = '/orders';
+                return;
+            }
+            fetchOrder(orderId);
+
+            // Poll for updates every 10 seconds
+            setInterval(() => fetchOrder(orderId), 10000);
+        });
+
+        async function fetchOrder(id) {
+            try {
+                const token = localStorage.getItem('token');
+                const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+
+                const response = await fetch(`${API_URL}/api/orders/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch');
+                const data = await response.json();
+                renderOrder(data.order);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').textContent = 'Error loading order';
+            }
+        }
+
+        function renderOrder(order) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('orderContent').style.display = 'block';
+
+            // Update Steps
+            const status = order.status;
+            updateTimeline(status);
+
+            // Update Text
+            const titles = {
+                'payment_pending': 'Waiting for Payment',
+                'pending': 'Verifying Payment',
+                'confirmed': 'Order Confirmed',
+                'preparing': 'Preparing Food',
+                'out_for_delivery': 'Out for Delivery',
+                'delivered': 'Delivered',
+                'cancelled': 'Order Cancelled'
+            };
+            document.getElementById('statusTitle').textContent = titles[status] || status;
+            document.getElementById('orderId').textContent = '#' + order._id.slice(-6).toUpperCase();
+
+            // Items
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = order.items.map(i => `
+                <div class="item-row">
+                    <span>${i.quantity}x ${i.name}</span>
+                    <span>₹${i.price * i.quantity}</span>
+                </div>
+            `).join('');
+            document.getElementById('totalAmount').textContent = `₹${order.totalAmount}`;
+
+            // Timer Logic
+            if (['preparing', 'out_for_delivery'].includes(status)) {
+                // Calculate remaining time (10 mins from confirmedAt)
+                // For demo, just show placeholder or calculate real diff if confirmedAt exists
+                document.getElementById('timerSection').style.display = 'block';
+            } else if (status === 'delivered') {
+                document.getElementById('timer').textContent = "Enjoy! 😋";
+                document.getElementById('timerSection').style.display = 'block';
+            } else {
+                document.getElementById('timerSection').style.display = 'none';
+            }
+        }
+
+        function updateTimeline(status) {
+            const steps = ['payment_pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered'];
+
+            // Map statuses to steps 1-4
+            // step1: pending
+            // step2: confirmed
+            // step3: preparing
+            // step4: out_for_delivery / delivered
+
+            const els = [
+                document.getElementById('step1'), // Pending
+                document.getElementById('step2'), // Confirmed
+                document.getElementById('step3'), // Preparing
+                document.getElementById('step4')  // Out
+            ];
+
+            els.forEach(el => {
+                el.classList.remove('active', 'completed');
+            });
+
+            if (status === 'cancelled') return;
+
+            if (status === 'pending' || status === 'payment_pending') {
+                els[0].classList.add('active');
+            } else if (status === 'confirmed') {
+                els[0].classList.add('completed');
+                els[1].classList.add('active');
+            } else if (status === 'preparing') {
+                els[0].classList.add('completed');
+                els[1].classList.add('completed');
+                els[2].classList.add('active');
+            } else if (status === 'out_for_delivery') {
+                els[0].classList.add('completed');
+                els[1].classList.add('completed');
+                els[2].classList.add('completed');
+                els[3].classList.add('active');
+            } else if (status === 'delivered') {
+                els.forEach(e => e.classList.add('completed'));
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -8,55 +8,45 @@ const API_BASE_URL = window.location.hostname === 'maggiepoint.onessa.agency' ||
 
 let currentDishId = null;
 let authToken = null;
+let allOrders = [];
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Check authentication
     checkAuth();
-
-    // Initialize navigation
     initNavigation();
-
-    // Initialize modals
     initModals();
-
-    // Load dashboard
     loadDashboard();
+
+    // Auto refresh orders every 30s
+    setInterval(() => {
+        if (document.getElementById('section-orders').classList.contains('active')) {
+            loadOrders();
+        }
+    }, 30000);
 });
 
 // === AUTHENTICATION ===
 function checkAuth() {
-    // Check both keys to handle potential legacy/caching issues
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-
     if (!token) {
-        console.warn('No auth token found, redirecting to login');
         window.location.href = '/login';
         return;
     }
-
-    // Store in global variable if needed, or just rely on localStorage
-    authToken = token; // Keep global var name for compatibility with rest of file
-
-    // Load user info
+    authToken = token;
     loadUserProfile();
 }
 
 async function loadUserProfile() {
-    // We'll just display from localStorage
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-
     if (!user.isAdmin) {
         alert('Access denied. Admin privileges required.');
         window.location.href = '/';
         return;
     }
-
     document.getElementById('adminName').textContent = `${user.firstName} ${user.lastName}`;
     document.getElementById('adminEmail').textContent = user.email;
     document.getElementById('adminAvatar').textContent = user.firstName?.[0] || 'A';
 }
 
-// Logout
 document.getElementById('logoutBtn').addEventListener('click', function () {
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
@@ -74,45 +64,156 @@ function initNavigation() {
             e.preventDefault();
             const sectionId = this.dataset.section;
 
-            // Update active nav
             navItems.forEach(nav => nav.classList.remove('active'));
             this.classList.add('active');
 
-            // Update active section
             sections.forEach(section => section.classList.remove('active'));
             document.getElementById(`section-${sectionId}`).classList.add('active');
 
-            // Update page title
             const titles = {
                 'dashboard': 'Dashboard',
+                'orders': 'Manage Orders',
                 'dishes': 'Manage Dishes',
                 'users': 'Manage Users',
                 'admins': 'Admin Users'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
 
-            // Load section data
             if (sectionId === 'dashboard') loadDashboard();
+            else if (sectionId === 'orders') loadOrders();
             else if (sectionId === 'dishes') loadDishes();
             else if (sectionId === 'users') loadUsers();
             else if (sectionId === 'admins') loadAdmins();
         });
     });
 
-    // Quick actions
-    document.querySelectorAll('.action-card').forEach(card => {
-        card.addEventListener('click', function () {
-            const action = this.dataset.action;
-            if (action === 'add-dish') {
-                document.querySelector('[data-section="dishes"]').click();
-                setTimeout(() => document.getElementById('addDishBtn').click(), 100);
-            } else if (action === 'view-users') {
-                document.querySelector('[data-section="users"]').click();
-            } else if (action === 'view-admins') {
-                document.querySelector('[data-section="admins"]').click();
-            }
+    // Order Filters
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function () {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            filterOrders(this.dataset.status);
         });
     });
+}
+
+// === ORDERS MANAGEMENT ===
+async function loadOrders() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            allOrders = data.orders;
+
+            // Filter based on active chip
+            const activeStatus = document.querySelector('.filter-chip.active')?.dataset.status || 'all';
+            filterOrders(activeStatus);
+
+            // Update dash stats
+            const pendingCount = allOrders.filter(o => o.status === 'pending' || o.status === 'payment_pending').length;
+            document.getElementById('statOrders').textContent = pendingCount;
+
+            // Calc revenue
+            const revenue = allOrders
+                .filter(o => o.status !== 'cancelled' && o.paymentDetails?.paymentVerified)
+                .reduce((sum, o) => sum + o.totalAmount, 0);
+            document.getElementById('statRevenue').textContent = `₹${revenue}`;
+        }
+    } catch (error) {
+        console.error('Load Orders Error:', error);
+    }
+}
+
+function filterOrders(status) {
+    if (status === 'all') {
+        renderOrders(allOrders);
+    } else {
+        const filtered = allOrders.filter(o => o.status === status || (status === 'pending' && o.status === 'payment_pending'));
+        renderOrders(filtered);
+    }
+}
+
+function renderOrders(orders) {
+    const grid = document.getElementById('ordersGrid');
+    if (orders.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; color:rgba(255,255,255,0.5); width:100%">No orders found</p>';
+        return;
+    }
+
+    grid.innerHTML = orders.map(order => `
+        <div class="order-card" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1)">
+                <div>
+                    <span style="color:#f97316; font-weight:700">#${order._id.slice(-6).toUpperCase()}</span>
+                    <span style="color:rgba(255,255,255,0.5); font-size: 12px; margin-left: 10px">${new Date(order.createdAt).toLocaleString()}</span>
+                </div>
+                <span class="status-badge" style="padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); font-size: 12px; text-transform: uppercase;">${order.status.replace('_', ' ')}</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px">
+                <div>
+                    <div style="color:rgba(255,255,255,0.5); font-size:12px">User Details</div>
+                    <div style="font-weight:600">${order.userId?.firstName} ${order.userId?.lastName}</div>
+                    <div style="font-size:14px">Room: ${order.userId?.room}, Floor: ${order.userId?.floor}</div>
+                    <div style="font-size:14px">Phone: ${order.userId?.mobile}</div>
+                </div>
+                <div>
+                    <div style="color:rgba(255,255,255,0.5); font-size:12px">Payment</div>
+                    <div style="font-weight:600; color:#f97316">₹${order.totalAmount}</div>
+                    ${order.paymentDetails?.utrNumber ? `<div style="font-size:13px; background:rgba(249,115,22,0.1); padding:4px; border-radius:4px; margin-top:5px">UTR: ${order.paymentDetails.utrNumber}</div>` : '<div style="font-size:13px; color:rgba(255,255,255,0.5)">No UTR</div>'}
+                </div>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:15px">
+                ${order.items.map(i => `<div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px"><span>${i.quantity}x ${i.name}</span><span>₹${i.price * i.quantity}</span></div>`).join('')}
+                ${order.deliveryDetails.specialInstructions ? `<div style="font-size:12px; color:#f97316; margin-top:5px">Note: ${order.deliveryDetails.specialInstructions}</div>` : ''}
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end">
+                ${(order.status === 'pending' || order.status === 'payment_pending') ? `
+                    <button class="btn btn-primary btn-small" onclick="verifyPayment('${order._id}')">✅ Verify & Confirm</button>
+                    <button class="btn btn-ghost btn-small" style="color:#ef4444" onclick="updateOrderStatus('${order._id}', 'cancelled')">❌ Cancel</button>
+                ` : ''}
+
+                ${(order.status === 'confirmed') ? `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'preparing')">👨‍🍳 Start Preparing</button>` : ''}
+                ${(order.status === 'preparing') ? `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'out_for_delivery')">🛵 Out for Delivery</button>` : ''}
+                ${(order.status === 'out_for_delivery') ? `<button class="btn btn-primary btn-small" style="background:#22c55e" onclick="updateOrderStatus('${order._id}', 'delivered')">🎉 Mark Delivered</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function verifyPayment(orderId) {
+    if (!confirm('Confirm payment verification?')) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/verify-payment`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (response.ok) {
+            alert('Payment verified!');
+            loadOrders();
+        }
+    } catch (e) { alert('Error verifying payment'); }
+}
+
+async function updateOrderStatus(orderId, status) {
+    if (!confirm(`Change status to ${status}?`)) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ status })
+        });
+        if (response.ok) {
+            loadOrders();
+        }
+    } catch (e) { alert('Error updating status'); }
 }
 
 // === DASHBOARD ===

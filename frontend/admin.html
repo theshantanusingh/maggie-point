@@ -32,6 +32,10 @@
                     <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
                 </a>
+                <a href="#" class="nav-item" data-section="orders">
+                    <span class="nav-icon">📦</span>
+                    <span>Manage Orders</span>
+                </a>
                 <a href="#" class="nav-item" data-section="dishes">
                     <span class="nav-icon">🍜</span>
                     <span>Manage Dishes</span>
@@ -74,43 +78,59 @@
                 <section id="section-dashboard" class="content-section active">
                     <div class="stats-grid">
                         <div class="stat-card">
+                            <div class="stat-icon">📦</div>
+                            <div class="stat-value" id="statOrders">0</div>
+                            <div class="stat-label">Pending Orders</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-value" id="statRevenue">₹0</div>
+                            <div class="stat-label">Total Revenue</div>
+                        </div>
+                        <div class="stat-card">
                             <div class="stat-icon">👥</div>
                             <div class="stat-value" id="statUsers">0</div>
                             <div class="stat-label">Total Users</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">👑</div>
-                            <div class="stat-value" id="statAdmins">0</div>
-                            <div class="stat-label">Admins</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">🍜</div>
                             <div class="stat-value" id="statDishes">0</div>
                             <div class="stat-label">Total Dishes</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">✅</div>
-                            <div class="stat-value" id="statAvailable">0</div>
-                            <div class="stat-label">Available</div>
-                        </div>
                     </div>
 
                     <div class="quick-actions">
                         <h2 class="section-subtitle">Quick Actions</h2>
                         <div class="actions-grid">
+                            <button class="action-card" data-action="view-orders">
+                                <span class="action-icon">📦</span>
+                                <span class="action-label">View Orders</span>
+                            </button>
                             <button class="action-card" data-action="add-dish">
                                 <span class="action-icon">➕</span>
                                 <span class="action-label">Add New Dish</span>
                             </button>
                             <button class="action-card" data-action="view-users">
                                 <span class="action-icon">👥</span>
-                                <span class="action-label">View All Users</span>
-                            </button>
-                            <button class="action-card" data-action="view-admins">
-                                <span class="action-icon">👑</span>
-                                <span class="action-label">Manage Admins</span>
+                                <span class="action-label">View Users</span>
                             </button>
                         </div>
+                    </div>
+                </section>
+
+                <!-- Orders Section -->
+                <section id="section-orders" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">Manage Orders</h2>
+                        <div class="status-filters" id="orderFilters">
+                            <button class="filter-chip active" data-status="all">All</button>
+                            <button class="filter-chip" data-status="pending">Verify</button>
+                            <button class="filter-chip" data-status="confirmed">Active</button>
+                            <button class="filter-chip" data-status="delivered">Done</button>
+                        </div>
+                    </div>
+                    <div class="orders-list" id="ordersGrid">
+                        <!-- Orders loaded via JS -->
                     </div>
                 </section>
 
