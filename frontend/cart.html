@@ -233,9 +233,8 @@
             document.getElementById('grandTotal').textContent = `₹${grandTotal}`;
 
             // Update QR
-            const upiId = 'shantanusingh@okicici';
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${upiId}&pn=MaggiePoint&am=${grandTotal}`;
-            document.getElementById('qrImage').src = qrUrl;
+            // Use static QR as requested
+            document.getElementById('qrImage').src = 'assets/images/qrcode_payment.jpeg';
         };
 
         window.updateQty = (id, change) => {
