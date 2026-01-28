@@ -11,7 +11,7 @@ let authToken = null;
 let allOrders = [];
 
 // Sound Notification
-const alertSound = new Audio('assets/audio/tick.mp3');
+const alertSound = new Audio('/assets/audio/tick.mp3');
 let lastOrderId = null;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -24,19 +24,28 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
         const header = document.querySelector('h1#pageTitle');
         if (header) {
+            // Remove existing if any
+            const existing = header.querySelector('button');
+            if (existing) existing.remove();
+
             const btn = document.createElement('button');
-            btn.innerHTML = '🔊 Test Sound';
+            btn.innerHTML = '🔊 Enable Sound';
             btn.className = 'btn btn-outline btn-small';
             btn.style.marginLeft = '15px';
             btn.style.fontSize = '12px';
             btn.onclick = () => {
+                alertSound.volume = 1.0;
                 alertSound.play().then(() => {
-                    alertSound.pause();
+                    alertSound.pause(); // Just play a bit or pause immediately
                     alertSound.currentTime = 0;
-                    btn.innerHTML = '✅ Sound Ready';
+                    btn.innerHTML = '✅ Sound Active';
                     btn.disabled = true;
                     btn.classList.add('btn-primary');
-                }).catch(e => alert('Audio blocked: ' + e.message));
+                    btn.classList.remove('btn-outline');
+                }).catch(e => {
+                    console.error('Audio check failed:', e);
+                    alert('Audio Error: ' + e.message + '. Check console.');
+                });
             };
             header.appendChild(btn);
         }
