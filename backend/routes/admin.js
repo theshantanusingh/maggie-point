@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const User = require('../models/User');
 const Dish = require('../models/Dish');
+const logger = require('../utils/logger');
+const fs = require('fs');
+const path = require('path');
 
 // ===== DISH MANAGEMENT =====
 
@@ -13,7 +16,7 @@ router.get('/dishes', async (req, res) => {
         const dishes = await Dish.find().sort({ category: 1, createdAt: -1 });
         res.json({ dishes });
     } catch (error) {
-        console.error('Get Dishes Error:', error);
+        logger.error(`Get Dishes Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch dishes', error: error.message });
     }
 });
@@ -24,7 +27,7 @@ router.get('/dishes/available', async (req, res) => {
         const dishes = await Dish.find({ isAvailable: true }).sort({ category: 1, createdAt: -1 });
         res.json({ dishes });
     } catch (error) {
-        console.error('Get Available Dishes Error:', error);
+        logger.error(`Get Available Dishes Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch dishes', error: error.message });
     }
 });
@@ -47,12 +50,14 @@ router.post('/dishes', authenticateToken, requireAdmin, async (req, res) => {
             createdBy: req.user.userId
         });
 
+        logger.info(`Dish Created: ${dish.name} by Admin: ${req.user.userId}`);
+
         res.status(201).json({
             message: 'Dish created successfully',
             dish
         });
     } catch (error) {
-        console.error('Create Dish Error:', error);
+        logger.error(`Create Dish Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to create dish', error: error.message });
     }
 });
@@ -72,12 +77,14 @@ router.put('/dishes/:id', authenticateToken, requireAdmin, async (req, res) => {
             return res.status(404).json({ message: 'Dish not found' });
         }
 
+        logger.info(`Dish Updated: ${dish.name} by Admin: ${req.user.userId}`);
+
         res.json({
             message: 'Dish updated successfully',
             dish
         });
     } catch (error) {
-        console.error('Update Dish Error:', error);
+        logger.error(`Update Dish Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to update dish', error: error.message });
     }
 });
@@ -91,9 +98,11 @@ router.delete('/dishes/:id', authenticateToken, requireAdmin, async (req, res) =
             return res.status(404).json({ message: 'Dish not found' });
         }
 
+        logger.info(`Dish Deleted: ${req.params.id} by Admin: ${req.user.userId}`);
+
         res.json({ message: 'Dish deleted successfully' });
     } catch (error) {
-        console.error('Delete Dish Error:', error);
+        logger.error(`Delete Dish Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to delete dish', error: error.message });
     }
 });
@@ -109,7 +118,7 @@ router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
             users
         });
     } catch (error) {
-        console.error('Get Users Error:', error);
+        logger.error(`Get Users Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch users', error: error.message });
     }
 });
@@ -125,7 +134,7 @@ router.get('/users/:id', authenticateToken, requireAdmin, async (req, res) => {
 
         res.json({ user });
     } catch (error) {
-        console.error('Get User Error:', error);
+        logger.error(`Get User Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch user', error: error.message });
     }
 });
@@ -145,12 +154,14 @@ router.put('/users/:id', authenticateToken, requireAdmin, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        logger.info(`User details Updated: ${user.email} by Admin: ${req.user.userId}`);
+
         res.json({
             message: 'User updated successfully',
             user
         });
     } catch (error) {
-        console.error('Update User Error:', error);
+        logger.error(`Update User Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to update user', error: error.message });
     }
 });
@@ -186,6 +197,8 @@ router.post('/users', authenticateToken, requireAdmin, async (req, res) => {
             isAdmin: isStartAdmin || false
         });
 
+        logger.info(`User Created by Admin: ${user.email}`);
+
         res.status(201).json({
             message: 'User created successfully',
             user: {
@@ -197,7 +210,7 @@ router.post('/users', authenticateToken, requireAdmin, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Create User Error:', error);
+        logger.error(`Create User Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to create user', error: error.message });
     }
 });
@@ -223,10 +236,12 @@ router.put('/users/:id/reset-password', authenticateToken, requireAdmin, async (
             return res.status(404).json({ message: 'User not found' });
         }
 
+        logger.info(`User Password Reset: ${user.email} by Admin: ${req.user.userId}`);
+
         res.json({ message: 'Password reset successfully' });
 
     } catch (error) {
-        console.error('Reset Password Error:', error);
+        logger.error(`Reset Password Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to reset password', error: error.message });
     }
 });
@@ -240,9 +255,11 @@ router.delete('/users/:id', authenticateToken, requireAdmin, async (req, res) =>
             return res.status(404).json({ message: 'User not found' });
         }
 
+        logger.warn(`User Deleted: ${user.email} by Admin: ${req.user.userId}`);
+
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
-        console.error('Delete User Error:', error);
+        logger.error(`Delete User Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to delete user', error: error.message });
     }
 });
@@ -258,7 +275,7 @@ router.get('/admins', authenticateToken, requireAdmin, async (req, res) => {
             admins
         });
     } catch (error) {
-        console.error('Get Admins Error:', error);
+        logger.error(`Get Admins Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch admins', error: error.message });
     }
 });
@@ -279,6 +296,8 @@ router.post('/admins/promote/:userId', authenticateToken, requireAdmin, async (r
         user.isAdmin = true;
         await user.save();
 
+        logger.info(`User Promoted to Admin: ${user.email} by Admin: ${req.user.userId}`);
+
         res.json({
             message: `${user.firstName} ${user.lastName} is now an admin`,
             user: {
@@ -290,7 +309,7 @@ router.post('/admins/promote/:userId', authenticateToken, requireAdmin, async (r
             }
         });
     } catch (error) {
-        console.error('Promote Admin Error:', error);
+        logger.error(`Promote Admin Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to promote user', error: error.message });
     }
 });
@@ -316,6 +335,8 @@ router.post('/admins/demote/:userId', authenticateToken, requireAdmin, async (re
         user.isAdmin = false;
         await user.save();
 
+        logger.warn(`User Demoted from Admin: ${user.email} by Admin: ${req.user.userId}`);
+
         res.json({
             message: `${user.firstName} ${user.lastName} is no longer an admin`,
             user: {
@@ -327,7 +348,7 @@ router.post('/admins/demote/:userId', authenticateToken, requireAdmin, async (re
             }
         });
     } catch (error) {
-        console.error('Demote Admin Error:', error);
+        logger.error(`Demote Admin Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to demote user', error: error.message });
     }
 });
@@ -350,8 +371,28 @@ router.get('/stats', authenticateToken, requireAdmin, async (req, res) => {
             regularUsers: totalUsers - totalAdmins
         });
     } catch (error) {
-        console.error('Get Stats Error:', error);
+        logger.error(`Get Stats Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch statistics', error: error.message });
+    }
+});
+
+// ===== LOG MANAGEMENT =====
+
+// Get logs (admin only)
+router.get('/logs/:type', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { type } = req.params; // 'app' or 'error'
+        const logFile = path.join(__dirname, `../logs/${type}.log`);
+
+        if (!fs.existsSync(logFile)) {
+            return res.status(404).json({ message: 'Log file not found' });
+        }
+
+        const logs = fs.readFileSync(logFile, 'utf8');
+        res.type('text/plain').send(logs);
+    } catch (error) {
+        logger.error(`Get Logs Error: ${error.message}`);
+        res.status(500).json({ message: 'Failed to fetch logs', error: error.message });
     }
 });
 

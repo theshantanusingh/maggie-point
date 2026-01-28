@@ -3,6 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const Dish = require('../models/Dish');
 const { authenticateToken } = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 // Create new order
 router.post('/', authenticateToken, async (req, res) => {
@@ -63,12 +64,14 @@ router.post('/', authenticateToken, async (req, res) => {
 
         await order.save();
 
+        logger.info(`Order Created: ${order._id} for User: ${req.user.userId} (Total: ₹${totalAmount})`);
+
         res.status(201).json({
             message: 'Order created successfully',
             order
         });
     } catch (error) {
-        console.error('Create order error:', error);
+        logger.error(`Create Order Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -93,12 +96,14 @@ router.put('/:orderId/payment', authenticateToken, async (req, res) => {
 
         await order.save();
 
+        logger.info(`Payment Submitted for Order: ${order._id} (UTR: ${utrNumber})`);
+
         res.json({
             message: 'Payment details submitted. Waiting for verification.',
             order
         });
     } catch (error) {
-        console.error('Submit payment error:', error);
+        logger.error(`Payment Submit Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -112,7 +117,7 @@ router.get('/my-orders', authenticateToken, async (req, res) => {
 
         res.json({ orders });
     } catch (error) {
-        console.error('Get orders error:', error);
+        logger.error(`Get My Orders Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -135,7 +140,7 @@ router.get('/:orderId', authenticateToken, async (req, res) => {
 
         res.json({ order });
     } catch (error) {
-        console.error('Get order error:', error);
+        logger.error(`Get Order Detail Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -163,12 +168,14 @@ router.put('/:orderId/cancel', authenticateToken, async (req, res) => {
 
         await order.save();
 
+        logger.info(`Order Cancelled by User: ${order._id}`);
+
         res.json({
             message: 'Order cancelled successfully',
             order
         });
     } catch (error) {
-        console.error('Cancel order error:', error);
+        logger.error(`Cancel Order Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });

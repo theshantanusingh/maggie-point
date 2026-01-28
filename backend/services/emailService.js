@@ -159,40 +159,60 @@ const getLoginEmailTemplate = (firstName) => {
     `;
 };
 
+const logger = require('../utils/logger');
+
 // Send OTP Email
 const sendOTPEmail = async (email, otp, firstName) => {
-    const mailOptions = {
-        from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `Your OTP Code - ${otp}`,
-        html: getOTPEmailTemplate(otp, firstName)
-    };
+    try {
+        const mailOptions = {
+            from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `Your OTP Code - ${otp}`,
+            html: getOTPEmailTemplate(otp, firstName)
+        };
 
-    await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
+        logger.info(`OTP Email sent successfully to ${email}`);
+    } catch (error) {
+        logger.error(`Error sending OTP Email to ${email}: ${error.message}`);
+        throw error;
+    }
 };
 
 // Send Welcome Email
 const sendWelcomeEmail = async (email, firstName) => {
-    const mailOptions = {
-        from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: '🎉 Welcome to Maggie Point!',
-        html: getWelcomeEmailTemplate(firstName)
-    };
+    try {
+        const mailOptions = {
+            from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: '🎉 Welcome to Maggie Point!',
+            html: getWelcomeEmailTemplate(firstName)
+        };
 
-    await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
+        logger.info(`Welcome Email sent successfully to ${email}`);
+    } catch (error) {
+        logger.error(`Error sending Welcome Email to ${email}: ${error.message}`);
+        throw error;
+    }
 };
 
 // Send Login Email
 const sendLoginEmail = async (email, firstName) => {
-    const mailOptions = {
-        from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: '👋 Welcome Back to Maggie Point!',
-        html: getLoginEmailTemplate(firstName)
-    };
+    try {
+        const mailOptions = {
+            from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: '👋 Welcome Back to Maggie Point!',
+            html: getLoginEmailTemplate(firstName)
+        };
 
-    await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
+        logger.info(`Login Email sent successfully to ${email}`);
+    } catch (error) {
+        logger.error(`Error sending Login Email to ${email}: ${error.message}`);
+        throw error;
+    }
 };
 
 module.exports = {

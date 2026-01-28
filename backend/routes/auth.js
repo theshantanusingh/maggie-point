@@ -6,6 +6,8 @@ const User = require('../models/User');
 const OTP = require('../models/OTP');
 const { sendOTPEmail, sendWelcomeEmail, sendLoginEmail } = require('../services/emailService');
 
+const logger = require('../utils/logger');
+
 // Generate 6-digit OTP
 const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -23,6 +25,7 @@ router.post('/send-otp', async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            logger.warn(`OTP request for existing user: ${email}`);
             return res.status(400).json({ message: 'This email is already registered. Please login.' });
         }
 
@@ -37,10 +40,11 @@ router.post('/send-otp', async (req, res) => {
 
         // Send OTP email
         await sendOTPEmail(email, otp, firstName);
+        logger.info(`OTP sent to ${email}`);
 
         res.json({ message: 'OTP sent successfully to your email' });
     } catch (error) {
-        console.error('Send OTP Error:', error);
+        logger.error(`Send OTP Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to send OTP', error: error.message });
     }
 });
@@ -57,12 +61,14 @@ router.post('/verify-otp', async (req, res) => {
         // Verify OTP
         const otpRecord = await OTP.findOne({ email, otp });
         if (!otpRecord) {
+            logger.warn(`Invalid OTP attempt for ${email}`);
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 
+        logger.info(`OTP verified for ${email}`);
         res.json({ message: 'OTP verified successfully' });
     } catch (error) {
-        console.error('Verify OTP Error:', error);
+        logger.error(`Verify OTP Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to verify OTP', error: error.message });
     }
 });
@@ -109,6 +115,7 @@ router.post('/signup', async (req, res) => {
 
         // Send welcome email
         await sendWelcomeEmail(email, firstName);
+        logger.info(`New user signup from ${email} (Room: ${room}, Floor: ${floor})`);
 
         // Generate JWT token
         const token = jwt.sign(
@@ -132,7 +139,7 @@ router.post('/signup', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Signup Error:', error);
+        logger.error(`Signup Error: ${error.message}`);
         res.status(500).json({ message: 'Signup failed', error: error.message });
     }
 });
@@ -150,17 +157,20 @@ router.post('/login', async (req, res) => {
         // Find user
         const user = await User.findOne({ email });
         if (!user) {
+            logger.warn(`Login failed (user not found): ${email}`);
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
+            logger.warn(`Login failed (invalid password): ${email}`);
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         // Send login email
         await sendLoginEmail(email, user.firstName);
+        logger.info(`User logged in: ${email}`);
 
         // Generate JWT token
         const token = jwt.sign(
@@ -183,7 +193,7 @@ router.post('/login', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Login Error:', error);
+        logger.error(`Login Error: ${error.message}`);
         res.status(500).json({ message: 'Login failed', error: error.message });
     }
 });

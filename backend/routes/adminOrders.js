@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 // Get all orders (admin only)
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
@@ -16,7 +17,7 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
 
         res.json({ orders });
     } catch (error) {
-        console.error('Get all orders error:', error);
+        logger.error(`Get All Orders Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -39,12 +40,14 @@ router.put('/:orderId/verify-payment', authenticateToken, requireAdmin, async (r
 
         await order.save();
 
+        logger.info(`Payment Verified for Order: ${order._id} by Admin: ${req.user.userId}`);
+
         res.json({
             message: 'Payment verified and order confirmed',
             order
         });
     } catch (error) {
-        console.error('Verify payment error:', error);
+        logger.error(`Verify Payment Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -88,12 +91,14 @@ router.put('/:orderId/status', authenticateToken, requireAdmin, async (req, res)
 
         await order.save();
 
+        logger.info(`Order Status Updated: ${order._id} to ${status} by Admin: ${req.user.userId}`);
+
         res.json({
             message: `Order status updated to ${status}`,
             order
         });
     } catch (error) {
-        console.error('Update status error:', error);
+        logger.error(`Update Status Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -111,12 +116,14 @@ router.put('/:orderId/time', authenticateToken, requireAdmin, async (req, res) =
         order.estimatedDeliveryTime = minutes;
         await order.save();
 
+        logger.info(`Delivery Time Updated: ${order._id} to ${minutes} mins by Admin`);
+
         res.json({
             message: 'Estimated delivery time updated',
             order
         });
     } catch (error) {
-        console.error('Update time error:', error);
+        logger.error(`Update Time Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -146,7 +153,7 @@ router.get('/stats/summary', authenticateToken, requireAdmin, async (req, res) =
             totalRevenue: totalRevenue[0]?.total || 0
         });
     } catch (error) {
-        console.error('Get stats error:', error);
+        logger.error(`Get Stats Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
     }
 });

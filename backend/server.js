@@ -7,18 +7,26 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
+const logger = require('./utils/logger');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request Logger
+app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.originalUrl} - IP: ${req.ip}`);
+    next();
+});
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+    .then(() => logger.info('✅ MongoDB Connected'))
+    .catch(err => logger.error(`❌ MongoDB Connection Error: ${err.message}`));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -52,12 +60,13 @@ app.get('/api', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
+    logger.warn(`404 Not Found: ${req.method} ${req.originalUrl}`);
     res.status(404).json({ message: 'Route not found' });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
+    logger.error(`Server Error: ${err.stack}`);
     res.status(500).json({
         message: 'Internal server error',
         error: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -67,6 +76,6 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 API URL: http://localhost:${PORT}/api`);
+    logger.info(`🚀 Server running on port ${PORT}`);
+    logger.info(`📍 API URL: http://localhost:${PORT}/api`);
 });
