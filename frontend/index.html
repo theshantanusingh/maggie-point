@@ -349,11 +349,16 @@
         </div>
     </section>
 
+    <script src="/js/navbar.js"></script>
+    <script src="/js/offers.js"></script>
     <script>
         // Load popular items from backend
         async function loadPopularItems() {
             const grid = document.getElementById('menuGrid');
             try {
+                // Fetch offers first
+                await Offers.fetchActive();
+
                 const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
                 const response = await fetch(`${API_URL}/api/admin/dishes/available`);
                 const data = await response.json();
@@ -366,14 +371,21 @@
 
                 // Show first 3 items as popular
                 const popular = dishes.slice(0, 3);
-                grid.innerHTML = popular.map(dish => `
-                    <div class="menu-card">
+                grid.innerHTML = popular.map(dish => {
+                    const discount = Offers.calculateDiscount(dish);
+                    return `
+                    <div class="menu-card" style="position: relative;">
+                         ${discount.hasDiscount ? `<div style="position: absolute; top: -10px; right: 20px; background: #ef4444; color: white; padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: 800; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); z-index: 10; border: 2px solid #0a0a0a">SALE</div>` : ''}
                         <div class="emoji">${dish.emoji || '🍜'}</div>
                         <h3>${dish.name}</h3>
                         <p>${dish.description}</p>
-                        <div class="price">₹${dish.price}</div>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                            ${discount.hasDiscount ? `<span style="font-size: 14px; color: #666; text-decoration: line-through; font-weight: 600;">₹${dish.price}</span>` : ''}
+                            <div class="price">₹${discount.finalPrice}</div>
+                        </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             } catch (error) {
                 console.error('Error loading popular items:', error);
                 grid.innerHTML = '<div class="menu-card"><p style="text-align:center;color:rgba(255,255,255,0.6);">Failed to load items</p></div>';

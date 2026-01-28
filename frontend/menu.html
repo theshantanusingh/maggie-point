@@ -358,6 +358,7 @@
 
     <script src="/js/cart.js"></script>
     <script src="/js/navbar.js"></script>
+    <script src="/js/offers.js"></script>
     <script>
         let allDishes = [];
         let currentCategory = 'all';
@@ -366,11 +367,40 @@
             document.getElementById('navLinks').classList.toggle('active');
         }
 
+        // Add Offers Banner Container
+        async function displayOffersBanner() {
+            const offers = await Offers.fetchActive();
+            if (offers.length > 0) {
+                const bannerContainer = document.createElement('div');
+                bannerContainer.id = 'offersBannerContainer';
+                bannerContainer.style.marginBottom = '30px';
+
+                bannerContainer.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); border: 1px solid rgba(249, 115, 22, 0.4); padding: 25px; border-radius: 16px; display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -20px; right: -20px; font-size: 100px; opacity: 0.1; filter: grayscale(1);">🎁</div>
+                        <div style="background: rgba(249, 115, 22, 0.1); width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 1px solid rgba(249, 115, 22, 0.2)">🏷️</div>
+                        <div style="flex-grow: 1;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                <h3 style="color: white; margin: 0; font-size: 20px;">${offers[0].title}</h3>
+                                <span style="background: #f97316; color: white; padding: 2px 10px; border-radius: 50px; font-weight: 800; font-size: 10px; letter-spacing: 0.5px;">PROMO</span>
+                            </div>
+                            <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin: 0;">${offers[0].description}</p>
+                        </div>
+                    </div>
+                `;
+                document.querySelector('.menu-section .container').prepend(bannerContainer);
+            }
+        }
+
         // Load menu from API
         async function loadMenu() {
             const container = document.getElementById('menuContainer');
 
             try {
+                // Fetch offers first
+                await Offers.fetchActive();
+                displayOffersBanner();
+
                 const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
                 const response = await fetch(`${API_URL}/api/admin/dishes/available`);
                 const data = await response.json();
@@ -441,24 +471,36 @@
                 return;
             }
 
-            container.innerHTML = dishes.map(dish => `
-                <div class="menu-card">
+            container.innerHTML = dishes.map(dish => {
+                const discount = Offers.calculateDiscount(dish);
+
+                return `
+                <div class="menu-card" style="position: relative;">
+                    ${discount.hasDiscount ? `<div style="position: absolute; top: -10px; right: 20px; background: #ef4444; color: white; padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: 800; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); z-index: 10; border: 2px solid #0a0a0a">SALE</div>` : ''}
                     <div class="emoji">${dish.emoji || '🍜'}</div>
                     <h3>${dish.name}</h3>
                     <p>${dish.description}</p>
                     <div class="menu-card-footer">
-                        <div class="price">₹${dish.price}</div>
+                        <div style="display: flex; flex-direction: column;">
+                            ${discount.hasDiscount ? `<span style="font-size: 13px; color: #666; text-decoration: line-through; font-weight: 600;">₹${dish.price}</span>` : ''}
+                            <div class="price">₹${discount.finalPrice}</div>
+                        </div>
                         <button class="btn btn-primary" onclick="addToCart('${dish._id}')">Add</button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Add to cart function
         window.addToCart = (id) => {
             const dish = allDishes.find(d => d._id === id);
             if (dish) {
-                Cart.add(dish);
+                const discount = Offers.calculateDiscount(dish);
+                Cart.add({
+                    ...dish,
+                    price: discount.finalPrice // Pass the discounted price to cart
+                });
             }
         };
 

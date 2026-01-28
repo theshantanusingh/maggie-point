@@ -149,6 +149,7 @@ function initNavigation() {
                 'activities': 'Activity Feed',
                 'inventory': 'Inventory Tracking',
                 'finance': 'Financial Records',
+                'offers': 'Manage offers',
                 'logs': 'System Logs'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
@@ -161,6 +162,7 @@ function initNavigation() {
             else if (sectionId === 'activities') loadActivities();
             else if (sectionId === 'inventory') loadInventory();
             else if (sectionId === 'finance') loadFinance();
+            else if (sectionId === 'offers') loadOffers();
             else if (sectionId === 'logs') loadLogs();
         });
     });
@@ -1063,5 +1065,167 @@ async function deleteInventoryItem(id) {
         loadInventory();
     } catch (e) {
         alert('Deletion failed');
+    }
+}
+
+// === OFFERS ===
+async function loadOffers() {
+    const list = document.getElementById('offersList');
+    if (!list) return;
+    list.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px;">Loading offers...</p>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/offers/admin`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await response.json();
+        renderOffers(data.offers || []);
+    } catch (error) {
+        list.innerHTML = `<p style="text-align: center; grid-column: 1/-1; color: red;">Error: ${error.message}</p>`;
+    }
+}
+
+function renderOffers(offers) {
+    const list = document.getElementById('offersList');
+    if (offers.length === 0) {
+        list.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: #666;">No active offers. Click + Create Offer to start.</p>';
+        return;
+    }
+
+    list.innerHTML = offers.map(offer => {
+        const discountLabel = offer.discountType === 'percentage' ? `${offer.discountValue}% OFF` : `₹${offer.discountValue} FLAT OFF`;
+        const scopeLabel = offer.applicableTo === 'all' ? 'All Items' : (offer.applicableTo === 'category' ? `Category: ${offer.targetId}` : `Single Dish`);
+
+        return `
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid ${offer.isActive ? 'rgba(249, 115, 22, 0.3)' : 'rgba(255,255,255,0.1)'}; padding: 25px; border-radius: 16px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                <div style="background: ${offer.isActive ? '#f97316' : '#444'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                    ${offer.isActive ? 'Active' : 'Paused'}
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="editOffer('${offer._id}')" style="background:none; border:none; cursor:pointer; color:#888;">✏️</button>
+                    <button onclick="deleteOffer('${offer._id}')" style="background:none; border:none; cursor:pointer; color:#888;">🗑️</button>
+                </div>
+            </div>
+            <h3 style="font-size: 20px; margin-bottom: 8px; color: white;">${offer.title}</h3>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5;">${offer.description}</p>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1);">
+                <div style="font-size: 24px; font-weight: 800; color: #f97316; margin-bottom: 4px;">${discountLabel}</div>
+                <div style="font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase;">Applies to: ${scopeLabel}</div>
+            </div>
+
+            <button onclick="toggleOfferStatus('${offer._id}', ${!offer.isActive})" class="btn ${offer.isActive ? 'btn-ghost' : 'btn-outline'}" style="width: 100%; margin-top: 20px; font-size: 13px;">
+                ${offer.isActive ? 'Pause Offer' : 'Activate Offer'}
+            </button>
+        </div>
+        `;
+    }).join('');
+}
+
+function openOfferModal() {
+    document.getElementById('offerForm').reset();
+    document.getElementById('offerId').value = '';
+    document.getElementById('offerModalTitle').textContent = 'Create New Offer';
+    document.getElementById('offerModal').classList.add('active');
+    handleApplicableChange();
+}
+
+function closeOfferModal() {
+    document.getElementById('offerModal').classList.remove('active');
+}
+
+function handleApplicableChange() {
+    const val = document.getElementById('offerApplicable').value;
+    const targetGroup = document.getElementById('offerTargetGroup');
+    targetGroup.style.display = (val === 'all') ? 'none' : 'block';
+}
+
+document.getElementById('offerApplicable')?.addEventListener('change', handleApplicableChange);
+
+document.getElementById('offerForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('offerId').value;
+    const data = {
+        title: document.getElementById('offerTitle').value,
+        description: document.getElementById('offerDesc').value,
+        discountType: document.getElementById('offerType').value,
+        discountValue: parseFloat(document.getElementById('offerValue').value),
+        applicableTo: document.getElementById('offerApplicable').value,
+        targetId: document.getElementById('offerTarget').value || 'all',
+        isActive: document.getElementById('offerIsActive').checked
+    };
+
+    try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_BASE_URL}/api/offers/${id}` : `${API_BASE_URL}/api/offers`;
+
+        await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(data)
+        });
+        closeOfferModal();
+        loadOffers();
+    } catch (e) {
+        alert('Failed to save offer');
+    }
+});
+
+async function toggleOfferStatus(id, newStatus) {
+    try {
+        await fetch(`${API_BASE_URL}/api/offers/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ isActive: newStatus })
+        });
+        loadOffers();
+    } catch (e) {
+        alert('Status update failed');
+    }
+}
+
+async function editOffer(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/offers/admin`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await response.json();
+        const offer = data.offers.find(o => o._id === id);
+        if (!offer) return;
+
+        document.getElementById('offerId').value = offer._id;
+        document.getElementById('offerTitle').value = offer.title;
+        document.getElementById('offerDesc').value = offer.description;
+        document.getElementById('offerType').value = offer.discountType;
+        document.getElementById('offerValue').value = offer.discountValue;
+        document.getElementById('offerApplicable').value = offer.applicableTo;
+        document.getElementById('offerTarget').value = offer.targetId;
+        document.getElementById('offerIsActive').checked = offer.isActive;
+
+        document.getElementById('offerModalTitle').textContent = 'Edit Offer';
+        document.getElementById('offerModal').classList.add('active');
+        handleApplicableChange();
+    } catch (e) {
+        alert('Failed to load offer details');
+    }
+}
+
+async function deleteOffer(id) {
+    if (!confirm('Permanently delete this offer?')) return;
+    try {
+        await fetch(`${API_BASE_URL}/api/offers/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        loadOffers();
+    } catch (e) {
+        alert('Delete failed');
     }
 }

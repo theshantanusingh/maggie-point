@@ -60,6 +60,10 @@
                     <span class="nav-icon">💰</span>
                     <span>Finance</span>
                 </a>
+                <a href="#" class="nav-item" data-section="offers">
+                    <span class="nav-icon">🏷️</span>
+                    <span>Offers</span>
+                </a>
                 <a href="#" class="nav-item" data-section="logs">
                     <span class="nav-icon">💻</span>
                     <span>System Logs</span>
@@ -282,6 +286,20 @@
                         </table>
                     </div>
                 </section>
+
+                <!-- Offers Section -->
+                <section id="section-offers" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">Promotional Offers</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="openOfferModal()">+ Create Offer</button>
+                        </div>
+                    </div>
+                    <div class="offers-grid" id="offersList"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- Offers will be loaded here -->
+                    </div>
+                </section>
             </div>
         </main>
     </div>
@@ -463,6 +481,63 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" onclick="closeInventoryModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Offer Modal -->
+    <div class="modal" id="offerModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="offerModalTitle">Create New Offer</h3>
+                <button class="modal-close" onclick="closeOfferModal()">&times;</button>
+            </div>
+            <form class="modal-body" id="offerForm">
+                <input type="hidden" id="offerId">
+                <div class="form-group">
+                    <label class="form-label">Offer Title</label>
+                    <input type="text" class="form-input" id="offerTitle" required placeholder="e.g. Weekend Special">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" id="offerDesc" required placeholder="e.g. 20% off on all Maggies"
+                        style="height: 80px;"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Discount Type</label>
+                        <select class="form-select" id="offerType" required>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="flat">Flat Amount (₹)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Value</label>
+                        <input type="number" class="form-input" id="offerValue" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Applicable To</label>
+                        <select class="form-select" id="offerApplicable" required>
+                            <option value="all">Everything</option>
+                            <option value="category">Specific Category</option>
+                            <option value="dish">Specific Dish</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="offerTargetGroup" style="display: none;">
+                        <label class="form-label">Selection</label>
+                        <input type="text" class="form-input" id="offerTarget" placeholder="Category name or Dish ID">
+                    </div>
+                </div>
+                <div class="form-checkbox">
+                    <input type="checkbox" id="offerIsActive" checked>
+                    <label for="offerIsActive">Active Now</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeOfferModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Offer</button>
                 </div>
             </form>
         </div>

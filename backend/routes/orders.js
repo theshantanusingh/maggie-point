@@ -16,9 +16,10 @@ router.post('/', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'No items in order' });
         }
 
-        // Calculate total and fetch dish details
+        // Calculate total and fetch dish details using price calculator for discounts
         let totalAmount = 0;
         const orderItems = [];
+        const { calculateDiscountedPrice } = require('../utils/priceCalculator');
 
         for (const item of items) {
             const dish = await Dish.findById(item.dishId);
@@ -30,12 +31,13 @@ router.post('/', authenticateToken, async (req, res) => {
             }
 
             const quantity = item.quantity || 1;
-            totalAmount += dish.price * quantity;
+            const discountedPrice = await calculateDiscountedPrice(dish);
+            totalAmount += discountedPrice * quantity;
 
             orderItems.push({
                 dishId: dish._id,
                 name: dish.name,
-                price: dish.price,
+                price: discountedPrice,
                 quantity,
                 emoji: dish.emoji
             });
