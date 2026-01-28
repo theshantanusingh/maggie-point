@@ -1,9 +1,10 @@
 /* ===================================
-   SIMPLE RESPONSIVE NAVBAR & AUTH
+   NAVBAR & AUTH LOGIC
    =================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
     initAuthAndNav();
+    initSmartButtons();
 });
 
 function initAuthAndNav() {
@@ -17,27 +18,12 @@ function initAuthAndNav() {
 
 function updateNavbarUI(isLoggedIn, user) {
     const navActions = document.querySelector('.nav-actions');
-    const navLinks = document.querySelector('.nav-links');
-
-    // Clear existing nav actions but keep the toggle button
-    // We recreate functionality to ensure it works
+    if (!navActions) return;
 
     if (isLoggedIn) {
-        // Logged In State
-        // Add "Profile" link to nav-links if not present
-        if (!document.querySelector('a[href="/profile"]')) {
-            const profileLink = document.createElement('a');
-            profileLink.href = '/profile.html'; // We'll create this later
-            profileLink.className = 'nav-link';
-            profileLink.textContent = 'Profile';
-            // Insert before the last item or specific position
-            navLinks.appendChild(profileLink);
-        }
-
+        // Logged in: Show Profile + Logout
         navActions.innerHTML = `
-            <div class="user-greeting" style="color:white; font-size:0.9rem; margin-right:1rem; display:none;">
-                Hi, ${user.firstName || 'User'}
-            </div>
+            <a href="/profile" class="btn btn-outline btn-small" style="display:none;">Profile</a>
             <button id="logoutBtn" class="btn btn-outline btn-small">Logout</button>
             <button class="mobile-menu-toggle" id="mobileToggle">
                 <span></span>
@@ -46,14 +32,16 @@ function updateNavbarUI(isLoggedIn, user) {
             </button>
         `;
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/';
-        });
-
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            });
+        }
     } else {
-        // Logged Out State
+        // Logged out: Show Login + Signup
         navActions.innerHTML = `
             <a href="/login" class="btn btn-ghost">Log In</a>
             <a href="/signup" class="btn btn-primary">Sign Up</a>
@@ -64,31 +52,60 @@ function updateNavbarUI(isLoggedIn, user) {
             </button>
         `;
     }
+
+    // Re-initialize mobile menu after updating HTML
+    initMobileToggle();
 }
 
 function initMobileToggle() {
-    // Determine the toggle button - it might have been re-rendered
-    const toggleBtn = document.getElementById('mobileToggle');
+    const toggle = document.getElementById('mobileToggle');
     const navLinks = document.querySelector('.nav-links');
-    const navActions = document.querySelector('.nav-actions'); // For mobile alignment
 
-    if (toggleBtn && navLinks) {
-        // Remove old event listeners to prevent duplicates
-        const newBtn = toggleBtn.cloneNode(true);
-        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+    if (!toggle || !navLinks) return;
 
-        newBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navLinks.classList.toggle('active');
-            newBtn.classList.toggle('active');
+    // Remove old listeners by cloning
+    const newToggle = toggle.cloneNode(true);
+    toggle.parentNode.replaceChild(newToggle, toggle);
+
+    newToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navLinks.classList.toggle('active');
+        newToggle.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!navLinks.contains(e.target) && !newToggle.contains(e.target)) {
+            navLinks.classList.remove('active');
+            newToggle.classList.remove('active');
+        }
+    });
+
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            newToggle.classList.remove('active');
         });
+    });
+}
 
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!navLinks.contains(e.target) && !newBtn.contains(e.target)) {
-                navLinks.classList.remove('active');
-                newBtn.classList.remove('active');
+// Smart button redirects
+function initSmartButtons() {
+    // Handle all "Order Now" or similar CTA buttons
+    document.querySelectorAll('[data-smart-redirect]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isLoggedIn = !!localStorage.getItem('token');
+            const target = btn.getAttribute('data-smart-redirect');
+
+            if (isLoggedIn) {
+                // Logged in: Go to menu
+                window.location.href = '/menu';
+            } else {
+                // Not logged in: Go to signup or specified target
+                window.location.href = target || '/signup';
             }
         });
-    }
+    });
 }
