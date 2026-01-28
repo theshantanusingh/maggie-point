@@ -464,11 +464,25 @@
     background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
 }
 
+/* Responsive Grid */
 .menu-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
     margin-bottom: 3rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 900px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .menu-item {

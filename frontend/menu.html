@@ -654,8 +654,20 @@
         </div>
     </footer>
 
-    <script src="js/auth-manager.js"></script>
-    <script src="js/app.js"></script>
+    <iframe id="menuPageCssFix" style="display:none;"></iframe>
+    <style>
+        /* Force white links globally to prevent blue text on black bg */
+        a {
+            color: inherit;
+        }
+
+        a:not([class]) {
+            color: #f97316;
+            text-decoration: underline;
+        }
+    </style>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/app.js"></script>
     <script>
         let allDishes = [];
         let currentFilter = 'all';

@@ -99,13 +99,12 @@
         </div>
     </div>
 
-    <script src="/js/auth-manager.js"></script>
     <script>
-        // Redirect if already logged in
-        if (window.authManager) {
-            window.authManager.redirectIfLoggedIn('/');
+        if (localStorage.getItem('token')) {
+            window.location.href = '/';
         }
     </script>
+    <script src="/js/navbar.js"></script>
     <script src="/js/auth.js"></script>
 </body>
 
