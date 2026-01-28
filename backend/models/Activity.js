@@ -15,7 +15,8 @@ const activitySchema = new mongoose.Schema({
             'DISH_CREATED', 'DISH_UPDATED', 'DISH_DELETED',
             'INVENTORY_ADDED', 'INVENTORY_UPDATED', 'INVENTORY_DELETED',
             'OFFER_CREATED', 'OFFER_UPDATED', 'OFFER_DELETED',
-            'USER_PROMOTED', 'USER_DEMOTED', 'USER_DELETED', 'PASSWORD_RESET'
+            'USER_PROMOTED', 'USER_DEMOTED', 'USER_DELETED', 'PASSWORD_RESET',
+            'BULK_EMAIL_SENT'
         ]
     },
     details: {

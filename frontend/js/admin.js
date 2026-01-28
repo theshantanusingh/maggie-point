@@ -5,7 +5,7 @@
 const getApiUrl = () => {
     const host = window.location.hostname;
     // If we're on localhost or local IP, use port 3000
-    if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.')) {
+    if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || /^\d+\.\d+\.\d+\.\d+$/.test(host)) {
         return `http://${host}:3000`;
     }
     // For VPS/Production, use relative paths to work with Nginx/Proxy
@@ -150,6 +150,7 @@ function initNavigation() {
                 'inventory': 'Inventory Tracking',
                 'finance': 'Financial Records',
                 'offers': 'Manage offers',
+                'email-tool': 'Bulk Email Tool',
                 'logs': 'System Logs'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
@@ -163,6 +164,7 @@ function initNavigation() {
             else if (sectionId === 'inventory') loadInventory();
             else if (sectionId === 'finance') loadFinance();
             else if (sectionId === 'offers') loadOffers();
+            else if (sectionId === 'email-tool') loadEmailTool();
             else if (sectionId === 'logs') loadLogs();
         });
     });
@@ -406,12 +408,15 @@ function renderOrders(orders) {
                     ${(order.status === 'out_for_delivery') ?
                 `<button class="btn btn-success btn-small" onclick="updateOrderStatus('${order._id}', 'delivered')">🎉 Done</button>` : ''}
 
+                    ${order.status === 'delivered' || order.status === 'confirmed' || order.status === 'preparing' || order.status === 'out_for_delivery' ?
+                `<button class="btn btn-outline btn-small" onclick="emailInvoice('${order._id}')">📧 Email Invoice</button>` : ''}
+
                     ${order.status !== 'cancelled' && order.status !== 'delivered' ?
                 `<button class="btn btn-ghost btn-small" style="color:#ef4444" onclick="updateOrderStatus('${order._id}', 'cancelled')">❌ Cancel</button>` : ''}
                 </div>
             </div>
         </div>
-        `;
+            `;
     }).join('');
 }
 
@@ -461,6 +466,18 @@ async function updateTime(orderId) {
             alert('Time updated!');
         }
     } catch (e) { alert('Error updating time'); }
+}
+
+async function emailInvoice(orderId) {
+    if (!confirm('Email invoice to user?')) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/email-invoice`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const result = await response.json();
+        alert(result.message);
+    } catch (e) { alert('Error emailing invoice'); }
 }
 
 // === DASHBOARD ===
@@ -1153,7 +1170,8 @@ document.getElementById('offerForm')?.addEventListener('submit', async (e) => {
         discountValue: parseFloat(document.getElementById('offerValue').value),
         applicableTo: document.getElementById('offerApplicable').value,
         targetId: document.getElementById('offerTarget').value || 'all',
-        isActive: document.getElementById('offerIsActive').checked
+        isActive: document.getElementById('offerIsActive').checked,
+        notifyUsers: document.getElementById('offerNotifyUsers')?.checked || false
     };
 
     try {
@@ -1229,3 +1247,128 @@ async function deleteOffer(id) {
         alert('Delete failed');
     }
 }
+
+// === EMAIL TOOL ===
+let emailUsers = [];
+
+async function loadEmailTool() {
+    const list = document.getElementById('emailUsersList');
+    if (!list) return;
+    list.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.4); padding-top: 40px;">Fetching users...</p>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await response.json();
+        emailUsers = data.users || [];
+        renderEmailUsers();
+    } catch (error) {
+        list.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 20px;">Error: ${error.message}</p>`;
+    }
+}
+
+function renderEmailUsers(search = '') {
+    const list = document.getElementById('emailUsersList');
+    if (!list) return;
+
+    const filtered = emailUsers.filter(u =>
+        u.firstName.toLowerCase().includes(search.toLowerCase()) ||
+        u.lastName.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.4); padding-top: 20px;">No users found.</p>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(user => `
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.03); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; margin-bottom: 5px;" onclick="toggleUserSelection('${user._id}')" class="email-user-item">
+            <input type="checkbox" class="user-email-checkbox" value="${user._id}" id="chk-${user._id}" onclick="event.stopPropagation(); updateSelectedCount();" style="accent-color: #f97316; width: 18px; height: 18px;">
+            <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+                <span style="font-size: 14px; font-weight: 600; color: white;">${user.firstName} ${user.lastName}</span>
+                <span style="font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.email}</span>
+            </div>
+        </div>
+    `).join('');
+
+    updateSelectedCount();
+}
+
+function toggleUserSelection(userId) {
+    const chk = document.getElementById(`chk-${userId}`);
+    if (chk) {
+        chk.checked = !chk.checked;
+        updateSelectedCount();
+    }
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.user-email-checkbox:checked').length;
+    const countEl = document.getElementById('selectedCount');
+    if (countEl) countEl.textContent = count;
+}
+
+function selectAllUsersForEmail() {
+    document.querySelectorAll('.user-email-checkbox').forEach(chk => chk.checked = true);
+    updateSelectedCount();
+}
+
+function clearUserSelection() {
+    document.querySelectorAll('.user-email-checkbox').forEach(chk => chk.checked = false);
+    updateSelectedCount();
+}
+
+document.getElementById('emailUserSearch')?.addEventListener('input', (e) => {
+    renderEmailUsers(e.target.value);
+});
+
+document.getElementById('bulkEmailForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const selectedCheckboxes = document.querySelectorAll('.user-email-checkbox:checked');
+    const userIds = Array.from(selectedCheckboxes).map(chk => chk.value);
+
+    if (userIds.length === 0) {
+        alert('Please select at least one recipient.');
+        return;
+    }
+
+    const subject = document.getElementById('emailSubject').value;
+    const content = document.getElementById('emailContent').value;
+
+    const btn = document.getElementById('sendBulkEmailBtn');
+    const originalBtnText = btn.innerHTML;
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span><span>Sending...</span>';
+
+        const response = await fetch(`${API_BASE_URL}/api/admin/send-bulk-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ userIds, subject, content })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(result.message);
+            document.getElementById('emailSubject').value = '';
+            document.getElementById('emailContent').value = '';
+            clearUserSelection();
+        } else {
+            alert(result.message || 'Failed to send emails');
+        }
+    } catch (error) {
+        console.error('Email Send Error:', error);
+        alert('Error sending emails: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+    }
+});

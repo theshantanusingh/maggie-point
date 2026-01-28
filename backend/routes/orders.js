@@ -5,6 +5,8 @@ const Dish = require('../models/Dish');
 const { authenticateToken } = require('../middleware/auth');
 const logger = require('../utils/logger');
 const { recordActivity } = require('../utils/activityLogger');
+const { sendOrderStatusEmail } = require('../services/emailService');
+const User = require('../models/User');
 
 // Create new order
 router.post('/', authenticateToken, async (req, res) => {
@@ -186,6 +188,17 @@ router.put('/:orderId/cancel', authenticateToken, async (req, res) => {
         order.cancellationReason = req.body.reason || 'Cancelled by user';
 
         await order.save();
+
+        // Send cancel email
+        const user = await User.findById(req.user.userId);
+        if (user && user.email) {
+            sendOrderStatusEmail(user, {
+                orderId: order._id.toString().slice(-6).toUpperCase(),
+                totalAmount: order.totalAmount,
+                room: user.room,
+                floor: user.floor
+            }, 'CANCELLED').catch(err => logger.error(`Silent Email Error: ${err.message}`));
+        }
 
         await recordActivity({
             user: req.user.userId,

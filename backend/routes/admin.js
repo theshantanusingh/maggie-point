@@ -477,4 +477,49 @@ router.get('/logs/:type', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
+// ===== EMAIL TOOL =====
+
+const { sendBulkEmail } = require('../services/emailService');
+
+// POST /api/admin/send-bulk-email
+router.post('/send-bulk-email', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { userIds, subject, content } = req.body;
+
+        if (!userIds || !subject || !content) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const users = await User.find({ _id: { $in: userIds } });
+
+        let successCount = 0;
+        let failCount = 0;
+
+        // Sequence sending to avoid rate limits/spam triggers
+        for (const user of users) {
+            const success = await sendBulkEmail(user, subject, content);
+            if (success) successCount++;
+            else failCount++;
+        }
+
+        await recordActivity({
+            user: req.user.userId,
+            action: 'BULK_EMAIL_SENT',
+            details: `Bulk email sent to ${successCount} users. Subject: ${subject}`,
+            metadata: { userIds, subject, successCount, failCount },
+            req
+        });
+
+        res.json({
+            message: `Emails sent successfully! Success: ${successCount}, Failed: ${failCount}`,
+            successCount,
+            failCount
+        });
+
+    } catch (error) {
+        logger.error(`Bulk Email Error: ${error.message}`);
+        res.status(500).json({ message: 'Failed to send bulk emails', error: error.message });
+    }
+});
+
 module.exports = router;

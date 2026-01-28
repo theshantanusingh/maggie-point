@@ -9,6 +9,15 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Verify transporter
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('❌ Email Transporter Error:', error);
+    } else {
+        console.log('🚀 Email Transporter Ready');
+    }
+});
+
 // Pretty email templates
 const getOTPEmailTemplate = (otp, firstName) => {
     return `
@@ -159,6 +168,157 @@ const getLoginEmailTemplate = (firstName) => {
     `;
 };
 
+const getOrderStatusEmailTemplate = (user, order, status) => {
+    let title = '';
+    let color = '#f97316';
+    let icon = '🛒';
+    let message = '';
+
+    switch (status) {
+        case 'PAID':
+            title = 'Payment Verified!';
+            color = '#10b981';
+            icon = '✅';
+            message = `We've received your payment and our chefs are now preparing your order.`;
+            break;
+        case 'OUT_FOR_DELIVERY':
+            title = 'Out for Delivery!';
+            color = '#f97316';
+            icon = '🛵';
+            message = `Your order is on its way to your room. Get ready for something delicious!`;
+            break;
+        case 'DELIVERED':
+            title = 'Order Delivered!';
+            color = '#3b82f6';
+            icon = '😋';
+            message = `Enjoy your meal! We hope it satisfies your cravings.`;
+            break;
+        case 'CANCELLED':
+            title = 'Order Cancelled';
+            color = '#ef4444';
+            icon = '❌';
+            message = `Your order has been cancelled. If you already paid, we'll process your refund shortly.`;
+            break;
+    }
+
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: 'Arial', sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+            .header { background: ${color}; padding: 40px 30px; text-align: center; color: white; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .icon { font-size: 48px; margin-bottom: 10px; }
+            .content { padding: 40px 30px; }
+            .order-details { background: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #e5e7eb; }
+            .footer { background: #f9fafb; padding: 20px 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="icon">${icon}</div>
+                <h1>${title}</h1>
+            </div>
+            <div class="content">
+                <h2 style="color: #1f2937; margin-top: 0;">Hi ${user.firstName}! 👋</h2>
+                <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">${message}</p>
+                <div class="order-details">
+                    <p style="margin: 5px 0;"><strong>Order ID:</strong> #${order.orderId}</p>
+                    <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${order.totalAmount}</p>
+                    <p style="margin: 5px 0;"><strong>Delivery to:</strong> Room ${user.room}, Floor ${user.floor}</p>
+                    ${status === 'PAID' ? `<p style="margin: 15px 0 5px; text-align: center;"><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/invoice.html?id=${order.mongoId}" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">View Invoice 📄</a></p>` : ''}
+                </div>
+                <p style="color: #6b7280; font-size: 14px;">If you have any questions, feel free to contact us.</p>
+            </div>
+            <div class="footer">
+                <p style="margin: 5px 0;">🌙 Maggie Point - Late Night Delivery</p>
+                <p style="margin: 15px 0 5px;">© 2026 Maggie Point. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+};
+
+const getOfferEmailTemplate = (firstName, offer) => {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: 'Arial', sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+            .header { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); padding: 40px 30px; text-align: center; color: white; }
+            .header h1 { margin: 0; font-size: 32px; }
+            .content { padding: 40px 30px; text-align: center; }
+            .offer-card { background: #fff1f2; border: 2px dashed #f43f5e; border-radius: 12px; padding: 30px; margin: 25px 0; }
+            .offer-title { font-size: 24px; font-weight: bold; color: #e11d48; margin-bottom: 10px; }
+            .offer-desc { color: #4b5563; font-size: 16px; margin-bottom: 20px; }
+            .button { display: inline-block; background: #f43f5e; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+            .footer { background: #f9fafb; padding: 20px 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div style="font-size: 48px; margin-bottom: 10px;">🔥</div>
+                <h1>Special Offer Found!</h1>
+            </div>
+            <div class="content">
+                <h2 style="color: #1f2937; margin-top: 0;">Hey ${firstName}!</h2>
+                <p style="color: #4b5563; font-size: 16px;">We have a special treat just for you. Check out our latest offer!</p>
+                <div class="offer-card">
+                    <div class="offer-title">${offer.title}</div>
+                    <p class="offer-desc">${offer.description}</p>
+                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/menu.html" class="button">Grab this Offer</a>
+                </div>
+                <p style="color: #9ca3af; font-size: 12px;">Valid until: ${new Date(offer.validUntil).toLocaleDateString()}</p>
+            </div>
+            <div class="footer">
+                <p style="margin: 5px 0;">🌙 Maggie Point - Amity University</p>
+                <p style="margin: 15px 0 5px;">© 2026 Maggie Point. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+};
+
+const getBulkEmailTemplate = (firstName, content) => {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: 'Arial', sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+            .header { background: #1f2937; padding: 30px; text-align: center; color: white; }
+            .content { padding: 40px 30px; color: #374151; line-height: 1.6; }
+            .footer { background: #f9fafb; padding: 20px 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Maggie Point Update</h1>
+            </div>
+            <div class="content">
+                <p>Hello ${firstName},</p>
+                ${content}
+            </div>
+            <div class="footer">
+                <p>You received this email from Maggie Point. <br> Amity University, Greater Noida.</p>
+                <p>© 2026 Maggie Point</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+};
+
 const logger = require('../utils/logger');
 
 // Send OTP Email
@@ -215,8 +375,63 @@ const sendLoginEmail = async (email, firstName) => {
     }
 };
 
+// Send Order Status Email
+const sendOrderStatusEmail = async (user, order, status) => {
+    try {
+        const mailOptions = {
+            from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: `Order Update - #${order.orderId}`,
+            html: getOrderStatusEmailTemplate(user, order, status)
+        };
+
+        await transporter.sendMail(mailOptions);
+        logger.info(`Order Status Email (${status}) sent to ${user.email}`);
+    } catch (error) {
+        logger.error(`Error sending Order Status Email to ${user.email}: ${error.message}`);
+    }
+};
+
+// Send Offer Email
+const sendOfferEmail = async (user, offer) => {
+    try {
+        const mailOptions = {
+            from: `"Maggie Point 🔥" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: `🔥 Special Offer: ${offer.title}`,
+            html: getOfferEmailTemplate(user.firstName, offer)
+        };
+
+        await transporter.sendMail(mailOptions);
+        logger.info(`Offer Email sent to ${user.email}`);
+    } catch (error) {
+        logger.error(`Error sending Offer Email to ${user.email}: ${error.message}`);
+    }
+};
+
+// Send Custom/Bulk Email
+const sendBulkEmail = async (user, subject, content) => {
+    try {
+        const mailOptions = {
+            from: `"Maggie Point 🍜" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: subject,
+            html: getBulkEmailTemplate(user.firstName, content)
+        };
+
+        await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        logger.error(`Error sending Bulk Email to ${user.email}: ${error.message}`);
+        return false;
+    }
+};
+
 module.exports = {
     sendOTPEmail,
     sendWelcomeEmail,
-    sendLoginEmail
+    sendLoginEmail,
+    sendOrderStatusEmail,
+    sendOfferEmail,
+    sendBulkEmail
 };

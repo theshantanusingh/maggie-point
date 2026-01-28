@@ -24,7 +24,8 @@
                     <span class="logo-icon">🍜</span>
                     <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
                 </a>
-                <div class="admin-badge">Admin Panel</div>
+                <div class="admin-badge">Admin Panel <span
+                        style="font-size: 8px; opacity: 0.5; margin-left: 5px;">v1.1</span></div>
             </div>
 
             <nav class="sidebar-nav">
@@ -64,6 +65,10 @@
                     <span class="nav-icon">🏷️</span>
                     <span>Offers</span>
                 </a>
+                <a href="#" class="nav-item" data-section="email-tool">
+                    <span class="nav-icon">✉️</span>
+                    <span>Email Tool</span>
+                </a>
                 <a href="#" class="nav-item" data-section="logs">
                     <span class="nav-icon">💻</span>
                     <span>System Logs</span>
@@ -79,7 +84,11 @@
                             disributedservices.shan@gmail.com</div>
                     </div>
                 </div>
+                <div style="font-size: 10px; color: #f97316; margin-bottom: 10px; text-align: center;">Build: 2026-01-28
+                    23:45</div>
                 <button class="btn btn-ghost btn-full" id="logoutBtn">Logout</button>
+                <button class="btn btn-ghost btn-full" style="font-size: 10px; opacity: 0.5;"
+                    onclick="location.reload(true)">Force Refresh Page</button>
             </div>
         </aside>
 
@@ -299,6 +308,69 @@
                     <div class="offers-grid" id="offersList"
                         style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
                         <!-- Offers will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Email Tool Section -->
+                <section id="section-email-tool" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">Bulk Email Tool</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-outline" onclick="selectAllUsersForEmail()">Select All</button>
+                            <button class="btn btn-ghost" onclick="clearUserSelection()">Clear Selection</button>
+                        </div>
+                    </div>
+
+                    <div class="email-tool-grid"
+                        style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 20px;">
+                        <!-- User Selection Column -->
+                        <div class="user-selection-card"
+                            style="background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; height: 600px; display: flex; flex-direction: column;">
+                            <h3 style="margin-bottom: 15px; font-size: 16px;">Select Recipients</h3>
+                            <div class="search-box" style="margin-bottom: 15px;">
+                                <input type="text" id="emailUserSearch" placeholder="Search users..."
+                                    style="width: 100%; background: transparent; border: none; color: white;">
+                            </div>
+                            <div id="emailUsersList"
+                                style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Users list with checkboxes -->
+                                <p style="text-align: center; color: rgba(255,255,255,0.4); padding-top: 40px;">Fetching
+                                    users...</p>
+                            </div>
+                        </div>
+
+                        <!-- Email Composition Column -->
+                        <div class="email-compose-card"
+                            style="background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 25px;">
+                            <h3 style="margin-bottom: 20px; font-size: 18px;">Compose Message</h3>
+                            <form id="bulkEmailForm">
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label class="form-label">Subject</label>
+                                    <input type="text" id="emailSubject" class="form-input"
+                                        placeholder="Enter email subject" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label class="form-label">Message Content (HTML Allowed)</label>
+                                    <div style="font-size: 11px; color: #f97316; margin-bottom: 5px;">Tip: You can use
+                                        &lt;b&gt;bold&lt;/b&gt;, &lt;br&gt; for new lines, etc.</div>
+                                    <textarea id="emailContent" class="form-input"
+                                        placeholder="Write your message here..."
+                                        style="height: 300px; resize: vertical;" required></textarea>
+                                </div>
+                                <div class="compose-footer"
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="selection-counter"
+                                        style="color: rgba(255,255,255,0.6); font-size: 14px;">
+                                        <span id="selectedCount">0</span> users selected
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="sendBulkEmailBtn"
+                                        style="padding: 12px 30px;">
+                                        <span>🚀</span>
+                                        <span>Send Bulk Email</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -532,9 +604,15 @@
                         <input type="text" class="form-input" id="offerTarget" placeholder="Category name or Dish ID">
                     </div>
                 </div>
-                <div class="form-checkbox">
-                    <input type="checkbox" id="offerIsActive" checked>
-                    <label for="offerIsActive">Active Now</label>
+                <div style="display: flex; gap: 20px;">
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="offerIsActive" checked>
+                        <label for="offerIsActive">Active Now</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="offerNotifyUsers">
+                        <label for="offerNotifyUsers" style="color: #f97316;">Notify all users via email</label>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" onclick="closeOfferModal()">Cancel</button>
@@ -544,7 +622,7 @@
         </div>
     </div>
 
-    <script src="/js/admin.js"></script>
+    <script src="/js/admin.js?v=1.1.2"></script>
 </body>
 
 </html>

@@ -3,6 +3,8 @@ const router = express.Router();
 const Offer = require('../models/Offer');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { recordActivity } = require('../utils/activityLogger');
+const { sendOfferEmail } = require('../services/emailService');
+const User = require('../models/User');
 
 // Get all offers (Admin)
 router.get('/admin', authenticateToken, requireAdmin, async (req, res) => {
@@ -27,10 +29,19 @@ router.get('/active', async (req, res) => {
 // Create offer
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     try {
+        const { notifyUsers, ...offerData } = req.body;
         const offer = await Offer.create({
-            ...req.body,
+            ...offerData,
             createdBy: req.user.userId
         });
+
+        if (notifyUsers) {
+            const users = await User.find({ isVerified: true });
+            // Send in background
+            users.forEach(user => {
+                sendOfferEmail(user, offer).catch(err => console.error('Silent offer email error', err));
+            });
+        }
 
         await recordActivity({
             user: req.user.userId,

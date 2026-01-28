@@ -4,6 +4,8 @@ const Order = require('../models/Order');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const logger = require('../utils/logger');
 const { recordActivity } = require('../utils/activityLogger');
+const { sendOrderStatusEmail } = require('../services/emailService');
+const User = require('../models/User');
 
 // Get all orders (admin only)
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
@@ -38,8 +40,20 @@ router.put('/:orderId/verify-payment', authenticateToken, requireAdmin, async (r
         order.status = 'confirmed';
         order.confirmedAt = new Date();
         order.preparingAt = new Date(); // Start timer immediately
-
         await order.save();
+
+        // Fetch user for email
+        const user = await User.findById(order.userId);
+        if (user && user.email) {
+            sendOrderStatusEmail(user, {
+                orderId: order._id.toString().slice(-6).toUpperCase(),
+                mongoId: order._id.toString(),
+                totalAmount: order.totalAmount,
+                room: user.room,
+                floor: user.floor
+            }, 'PAID')
+                .catch(err => logger.error(`Silent Email Error: ${err.message}`));
+        }
 
         await recordActivity({
             user: req.user.userId,
@@ -99,6 +113,27 @@ router.put('/:orderId/status', authenticateToken, requireAdmin, async (req, res)
         }
 
         await order.save();
+
+        // Send Email Notification
+        const user = await User.findById(order.userId);
+        if (user && user.email) {
+            const statusMap = {
+                'out_for_delivery': 'OUT_FOR_DELIVERY',
+                'delivered': 'DELIVERED',
+                'cancelled': 'CANCELLED'
+            };
+            const emailStatus = statusMap[status];
+            if (emailStatus) {
+                sendOrderStatusEmail(user, {
+                    orderId: order._id.toString().slice(-6).toUpperCase(),
+                    mongoId: order._id.toString(),
+                    totalAmount: order.totalAmount,
+                    room: user.room,
+                    floor: user.floor
+                }, emailStatus)
+                    .catch(err => logger.error(`Silent Email Error: ${err.message}`));
+            }
+        }
 
         await recordActivity({
             user: req.user.userId,
@@ -172,6 +207,30 @@ router.get('/stats/summary', authenticateToken, requireAdmin, async (req, res) =
     } catch (error) {
         logger.error(`Get Stats Error: ${error.message}`);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Email invoice (manual)
+router.post('/:orderId/email-invoice', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.orderId);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        const user = await User.findById(order.userId);
+        if (!user || !user.email) return res.status(404).json({ message: 'User or user email not found' });
+
+        await sendOrderStatusEmail(user, {
+            orderId: order._id.toString().slice(-6).toUpperCase(),
+            mongoId: order._id.toString(),
+            totalAmount: order.totalAmount,
+            room: user.room,
+            floor: user.floor
+        }, 'PAID');
+
+        res.json({ message: 'Invoice emailed successfully' });
+    } catch (error) {
+        logger.error(`Email Invoice Error: ${error.message}`);
+        res.status(500).json({ message: 'Error emailing invoice' });
     }
 });
 
