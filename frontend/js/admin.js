@@ -11,7 +11,7 @@ let authToken = null;
 let allOrders = [];
 
 // Sound Notification
-const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+const alertSound = new Audio('assets/audio/tick.mp3');
 let lastOrderId = null;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -20,12 +20,34 @@ document.addEventListener('DOMContentLoaded', function () {
     initModals();
     loadDashboard();
 
-    // Auto refresh orders every 30s
+    // Add Sound Enable Button
+    setTimeout(() => {
+        const header = document.querySelector('h1#pageTitle');
+        if (header) {
+            const btn = document.createElement('button');
+            btn.innerHTML = '🔊 Test Sound';
+            btn.className = 'btn btn-outline btn-small';
+            btn.style.marginLeft = '15px';
+            btn.style.fontSize = '12px';
+            btn.onclick = () => {
+                alertSound.play().then(() => {
+                    alertSound.pause();
+                    alertSound.currentTime = 0;
+                    btn.innerHTML = '✅ Sound Ready';
+                    btn.disabled = true;
+                    btn.classList.add('btn-primary');
+                }).catch(e => alert('Audio blocked: ' + e.message));
+            };
+            header.appendChild(btn);
+        }
+    }, 1000);
+
+    // Auto refresh orders every 5s
     setInterval(() => {
         if (document.getElementById('section-orders').classList.contains('active')) {
             loadOrders();
         }
-    }, 30000);
+    }, 5000);
 
     // Timer Interval
     setInterval(() => {
