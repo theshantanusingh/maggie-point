@@ -48,9 +48,9 @@
                     <span class="nav-icon">👑</span>
                     <span>Admins</span>
                 </a>
-                <a href="#" class="nav-item" data-section="logs">
+                <a href="#" class="nav-item" data-section="activities">
                     <span class="nav-icon">📜</span>
-                    <span>System Logs</span>
+                    <span>Activity Feed</span>
                 </a>
             </nav>
 
@@ -195,18 +195,17 @@
                     </div>
                 </section>
 
-                <!-- Logs Section -->
-                <section id="section-logs" class="content-section">
+                <!-- Activity Feed Section -->
+                <section id="section-activities" class="content-section">
                     <div class="section-header">
-                        <h2 class="section-subtitle">System Logs</h2>
+                        <h2 class="section-subtitle">Real-time Activity Feed</h2>
                         <div class="header-actions">
-                            <button class="btn btn-outline" id="refreshLogsBtn">Refresh Logs</button>
+                            <button class="btn btn-outline" id="refreshActivitiesBtn">Refresh Feed</button>
                         </div>
                     </div>
-                    <div class="logs-container"
-                        style="background: #000; color: #0f0; font-family: 'Courier Prime', monospace; padding: 20px; border-radius: 8px; height: 600px; overflow-y: auto; border: 1px solid #333; line-height: 1.5; font-size: 13px;"
-                        id="logsBox">
-                        Loading system logs...
+                    <div class="activity-feed" id="activityBox"
+                        style="display: flex; flex-direction: column; gap: 12px; height: 600px; overflow-y: auto; padding-right: 10px;">
+                        <p style="color: #666; text-align: center; padding: 40px;">Syncing activities...</p>
                     </div>
                 </section>
             </div>

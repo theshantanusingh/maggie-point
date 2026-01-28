@@ -7,6 +7,8 @@ const Dish = require('../models/Dish');
 const logger = require('../utils/logger');
 const fs = require('fs');
 const path = require('path');
+const { recordActivity } = require('../utils/activityLogger');
+const Activity = require('../models/Activity');
 
 // ===== DISH MANAGEMENT =====
 
@@ -50,6 +52,14 @@ router.post('/dishes', authenticateToken, requireAdmin, async (req, res) => {
             createdBy: req.user.userId
         });
 
+        await recordActivity({
+            user: req.user.userId,
+            action: 'DISH_CREATED',
+            details: `New dish created: ${name} (₹${price})`,
+            metadata: { dishId: dish._id, name, price },
+            req
+        });
+
         logger.info(`Dish Created: ${dish.name} by Admin: ${req.user.userId}`);
 
         res.status(201).json({
@@ -77,6 +87,14 @@ router.put('/dishes/:id', authenticateToken, requireAdmin, async (req, res) => {
             return res.status(404).json({ message: 'Dish not found' });
         }
 
+        await recordActivity({
+            user: req.user.userId,
+            action: 'DISH_UPDATED',
+            details: `Dish updated: ${dish.name}`,
+            metadata: { dishId: dish._id, updates: req.body },
+            req
+        });
+
         logger.info(`Dish Updated: ${dish.name} by Admin: ${req.user.userId}`);
 
         res.json({
@@ -97,6 +115,14 @@ router.delete('/dishes/:id', authenticateToken, requireAdmin, async (req, res) =
         if (!dish) {
             return res.status(404).json({ message: 'Dish not found' });
         }
+
+        await recordActivity({
+            user: req.user.userId,
+            action: 'DISH_DELETED',
+            details: `Dish deleted: ${dish.name}`,
+            metadata: { dishId: req.params.id, name: dish.name },
+            req
+        });
 
         logger.info(`Dish Deleted: ${req.params.id} by Admin: ${req.user.userId}`);
 
@@ -378,7 +404,27 @@ router.get('/stats', authenticateToken, requireAdmin, async (req, res) => {
 
 // ===== LOG MANAGEMENT =====
 
-// Get logs (admin only)
+// ===== ACTIVITY FEED =====
+
+// Get recent activities (admin only)
+router.get('/activities', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { limit = 50, action } = req.query;
+        const filter = action ? { action } : {};
+
+        const activities = await Activity.find(filter)
+            .sort({ timestamp: -1 })
+            .limit(parseInt(limit))
+            .populate('user', 'firstName lastName email');
+
+        res.json({ activities });
+    } catch (error) {
+        logger.error(`Get Activities Error: ${error.message}`);
+        res.status(500).json({ message: 'Failed to fetch activities', error: error.message });
+    }
+});
+
+// Get raw logs (admin only)
 router.get('/logs/:type', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { type } = req.params; // 'app' or 'error'

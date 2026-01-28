@@ -4,6 +4,7 @@ const Order = require('../models/Order');
 const Dish = require('../models/Dish');
 const { authenticateToken } = require('../middleware/auth');
 const logger = require('../utils/logger');
+const { recordActivity } = require('../utils/activityLogger');
 
 // Create new order
 router.post('/', authenticateToken, async (req, res) => {
@@ -64,6 +65,14 @@ router.post('/', authenticateToken, async (req, res) => {
 
         await order.save();
 
+        await recordActivity({
+            user: req.user.userId,
+            action: 'ORDER_PLACED',
+            details: `Order placed: #${order._id.toString().slice(-6).toUpperCase()} (Total: ₹${totalAmount})`,
+            metadata: { orderId: order._id, totalAmount },
+            req
+        });
+
         logger.info(`Order Created: ${order._id} for User: ${req.user.userId} (Total: ₹${totalAmount})`);
 
         res.status(201).json({
@@ -95,6 +104,14 @@ router.put('/:orderId/payment', authenticateToken, async (req, res) => {
         order.status = 'pending'; // Waiting for admin verification
 
         await order.save();
+
+        await recordActivity({
+            user: req.user.userId,
+            action: 'PAYMENT_SUBMITTED',
+            details: `Payment submitted for Order #${order._id.toString().slice(-6).toUpperCase()} (UTR: ${utrNumber})`,
+            metadata: { orderId: order._id, utrNumber },
+            req
+        });
 
         logger.info(`Payment Submitted for Order: ${order._id} (UTR: ${utrNumber})`);
 
@@ -167,6 +184,14 @@ router.put('/:orderId/cancel', authenticateToken, async (req, res) => {
         order.cancellationReason = req.body.reason || 'Cancelled by user';
 
         await order.save();
+
+        await recordActivity({
+            user: req.user.userId,
+            action: 'ORDER_CANCELLED',
+            details: `Order #${order._id.toString().slice(-6).toUpperCase()} cancelled by user. Reason: ${order.cancellationReason}`,
+            metadata: { orderId: order._id, reason: order.cancellationReason },
+            req
+        });
 
         logger.info(`Order Cancelled by User: ${order._id}`);
 

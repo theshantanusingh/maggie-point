@@ -3,6 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const logger = require('../utils/logger');
+const { recordActivity } = require('../utils/activityLogger');
 
 // Get all orders (admin only)
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
@@ -39,6 +40,14 @@ router.put('/:orderId/verify-payment', authenticateToken, requireAdmin, async (r
         order.preparingAt = new Date(); // Start timer immediately
 
         await order.save();
+
+        await recordActivity({
+            user: req.user.userId,
+            action: 'PAYMENT_VERIFIED',
+            details: `Payment verified for Order #${order._id.toString().slice(-6).toUpperCase()} by Admin`,
+            metadata: { orderId: order._id },
+            req
+        });
 
         logger.info(`Payment Verified for Order: ${order._id} by Admin: ${req.user.userId}`);
 
@@ -90,6 +99,14 @@ router.put('/:orderId/status', authenticateToken, requireAdmin, async (req, res)
         }
 
         await order.save();
+
+        await recordActivity({
+            user: req.user.userId,
+            action: 'ORDER_STATUS_UPDATED',
+            details: `Order #${order._id.toString().slice(-6).toUpperCase()} status updated to ${status} by Admin`,
+            metadata: { orderId: order._id, status },
+            req
+        });
 
         logger.info(`Order Status Updated: ${order._id} to ${status} by Admin: ${req.user.userId}`);
 

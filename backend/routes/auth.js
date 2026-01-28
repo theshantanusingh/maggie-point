@@ -8,6 +8,7 @@ const { sendOTPEmail, sendWelcomeEmail, sendLoginEmail } = require('../services/
 
 const { authenticateToken } = require('../middleware/auth');
 const logger = require('../utils/logger');
+const { recordActivity } = require('../utils/activityLogger');
 
 // Generate 6-digit OTP
 const generateOTP = () => {
@@ -116,6 +117,13 @@ router.post('/signup', async (req, res) => {
 
         // Send welcome email
         await sendWelcomeEmail(email, firstName);
+        await recordActivity({
+            user: user._id,
+            action: 'SIGNUP',
+            details: `New account created for ${firstName} ${lastName} (${email})`,
+            metadata: { room, floor },
+            req
+        });
         logger.info(`New user signup from ${email} (Room: ${room}, Floor: ${floor})`);
 
         // Generate JWT token
@@ -171,6 +179,12 @@ router.post('/login', async (req, res) => {
 
         // Send login email
         await sendLoginEmail(email, user.firstName);
+        await recordActivity({
+            user: user._id,
+            action: 'LOGIN',
+            details: `User logged in: ${email}`,
+            req
+        });
         logger.info(`User logged in: ${email}`);
 
         // Generate JWT token
@@ -214,7 +228,13 @@ router.get('/users', async (req, res) => {
 });
 
 // POST /api/auth/logout
-router.post('/logout', authenticateToken, (req, res) => {
+router.post('/logout', authenticateToken, async (req, res) => {
+    await recordActivity({
+        user: req.user.userId,
+        action: 'LOGOUT',
+        details: `User logged out: ${req.user.email}`,
+        req
+    });
     logger.info(`User logged out: ${req.user.email}`);
     res.json({ message: 'Logged out successfully' });
 });

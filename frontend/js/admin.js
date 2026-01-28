@@ -143,7 +143,7 @@ function initNavigation() {
                 'dishes': 'Manage Dishes',
                 'users': 'Manage Users',
                 'admins': 'Admin Users',
-                'logs': 'System Logs'
+                'activities': 'Activity Feed'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
 
@@ -152,12 +152,12 @@ function initNavigation() {
             else if (sectionId === 'dishes') loadDishes();
             else if (sectionId === 'users') loadUsers();
             else if (sectionId === 'admins') loadAdmins();
-            else if (sectionId === 'logs') loadLogs();
+            else if (sectionId === 'activities') loadActivities();
         });
     });
 
-    // Refresh Logs Btn
-    document.getElementById('refreshLogsBtn')?.addEventListener('click', loadLogs);
+    // Refresh Activities Btn
+    document.getElementById('refreshActivitiesBtn')?.addEventListener('click', loadActivities);
 
     // Order Filters
     document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -169,42 +169,62 @@ function initNavigation() {
     });
 }
 
-// === LOGS ===
-async function loadLogs() {
-    const logsBox = document.getElementById('logsBox');
-    logsBox.innerHTML = 'Fetching logs...';
+// === ACTIVITIES ===
+async function loadActivities() {
+    const box = document.getElementById('activityBox');
+    if (!box) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/logs/app`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/activities`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(`Server responded with ${response.status}: ${errData.message || 'Unknown error'}`);
-        }
+        if (!response.ok) throw new Error('Failed to fetch activity feed');
 
-        const data = await response.json();
-        const text = data.logs || '';
-        if (!text) {
-            logsBox.innerHTML = '<div style="color: #888">No logs recorded yet.</div>';
+        const { activities } = await response.json();
+
+        if (activities.length === 0) {
+            box.innerHTML = '<p style="color: #666; text-align: center; padding: 40px;">No activities recorded yet.</p>';
             return;
         }
 
-        const lines = text.split('\n').filter(Boolean).reverse(); // Latest logs first
+        box.innerHTML = activities.map(act => {
+            const date = new Date(act.timestamp);
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 
-        logsBox.innerHTML = lines.map(line => {
-            let color = '#0f0'; // Default green
-            if (line.includes('[ERROR]')) color = '#ff4444';
-            if (line.includes('[WARN]')) color = '#ffbb33';
+            const actionColors = {
+                'LOGIN': '#10b981',
+                'LOGOUT': '#6b7280',
+                'SIGNUP': '#3b82f6',
+                'ORDER_PLACED': '#f59e0b',
+                'ORDER_STATUS_UPDATED': '#8b5cf6',
+                'ORDER_CANCELLED': '#ef4444',
+                'PAYMENT_SUBMITTED': '#10b981',
+                'PAYMENT_VERIFIED': '#10b981',
+                'DISH_CREATED': '#3b82f6',
+                'DISH_UPDATED': '#3b82f6',
+                'DISH_DELETED': '#ef4444'
+            };
 
-            return `<div style="color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0;">${line}</div>`;
+            const color = actionColors[act.action] || '#888';
+
+            return `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; display: flex; align-items: flex-start; gap: 15px; margin-bottom: 12px">
+                <div style="background: ${color}; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; box-shadow: 0 0 10px ${color}"></div>
+                <div style="flex-grow: 1">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-weight: 700; color: ${color}; font-size: 11px; letter-spacing: 0.5px">${act.action}</span>
+                        <span style="font-size: 10px; color: #666">${dateStr}, ${timeStr}</span>
+                    </div>
+                    <p style="font-size: 14px; margin: 0; color: #e5e7eb; line-height: 1.4">${act.details}</p>
+                    ${act.user ? `<div style="font-size: 11px; color: #666; margin-top: 6px; font-family: monospace;">BY: ${act.user.firstName} ${act.user.lastName} (${act.user.email})</div>` : `<div style="font-size: 11px; color: #666; margin-top: 6px; font-family: monospace;">BY: System</div>`}
+                </div>
+            </div>
+            `;
         }).join('');
     } catch (error) {
-        console.error('Log fetch error:', error);
-        logsBox.innerHTML = `<span style="color: #ff4444">Error: ${error.message}</span><br>
-                             <small style="color: #888">Target: ${API_BASE_URL}/api/admin/logs/app</small><br>
-                             <small style="color: #666">Check if the backend is running and reachable.</small>`;
+        box.innerHTML = `<p style="color: #ef4444; padding: 20px; text-align: center;">Error: ${error.message}</p>`;
     }
 }
 
