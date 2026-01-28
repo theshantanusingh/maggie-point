@@ -42,7 +42,6 @@ function checkAuth() {
 }
 
 async function loadUserProfile() {
-    // For now, decode JWT manually or you can call a /me endpoint
     // We'll just display from localStorage
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -60,6 +59,7 @@ async function loadUserProfile() {
 // Logout
 document.getElementById('logoutBtn').addEventListener('click', function () {
     localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     window.location.href = '/login';
 });
@@ -179,29 +179,61 @@ function renderDishes(dishes) {
     `).join('');
 }
 
-// === DISH MODAL ===
+// === MODALS ===
 function initModals() {
+    // Dish Modals
     const dishModal = document.getElementById('dishModal');
     const closeDishModal = document.getElementById('closeDishModal');
     const cancelDishBtn = document.getElementById('cancelDishBtn');
     const dishForm = document.getElementById('dishForm');
     const addDishBtn = document.getElementById('addDishBtn');
 
-    addDishBtn.addEventListener('click', () => {
-        currentDishId = null;
-        document.getElementById('modalDishTitle').textContent = 'Add New Dish';
-        dishForm.reset();
-        dishModal.classList.add('active');
-    });
+    if (addDishBtn) {
+        addDishBtn.addEventListener('click', () => {
+            currentDishId = null;
+            document.getElementById('modalDishTitle').textContent = 'Add New Dish';
+            dishForm.reset();
+            dishModal.classList.add('active');
+        });
 
-    closeDishModal.addEventListener('click', () => dishModal.classList.remove('active'));
-    cancelDishBtn.addEventListener('click', () => dishModal.classList.remove('active'));
+        closeDishModal.addEventListener('click', () => dishModal.classList.remove('active'));
+        cancelDishBtn.addEventListener('click', () => dishModal.classList.remove('active'));
+        dishForm.addEventListener('submit', saveDish);
+    }
 
-    dishForm.addEventListener('submit', saveDish);
+    // User Modals
+    const userModal = document.getElementById('userModal');
+    const closeUserModal = document.getElementById('closeUserModal');
+    const cancelUserBtn = document.getElementById('cancelUserBtn');
+    const userForm = document.getElementById('userForm');
+    const createUserBtn = document.getElementById('createUserBtn');
+
+    if (createUserBtn) {
+        createUserBtn.addEventListener('click', () => {
+            userForm.reset();
+            userModal.classList.add('active');
+        });
+
+        closeUserModal.addEventListener('click', () => userModal.classList.remove('active'));
+        cancelUserBtn.addEventListener('click', () => userModal.classList.remove('active'));
+        userForm.addEventListener('submit', createUser);
+    }
+
+    // Reset Password Modal
+    const resetModal = document.getElementById('resetPasswordModal');
+    const closeResetModal = document.getElementById('closeResetModal');
+    const cancelResetBtn = document.getElementById('cancelResetBtn');
+    const resetForm = document.getElementById('resetPasswordForm');
+
+    if (resetModal) {
+        closeResetModal.addEventListener('click', () => resetModal.classList.remove('active'));
+        cancelResetBtn.addEventListener('click', () => resetModal.classList.remove('active'));
+        resetForm.addEventListener('submit', resetPassword);
+    }
 }
 
 async function saveDish(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     const dishData = {
         name: document.getElementById('dishName').value,
@@ -284,6 +316,85 @@ async function deleteDish(dishId) {
 }
 
 // === USERS MANAGEMENT ===
+
+async function createUser(e) {
+    if (e) e.preventDefault();
+
+    const userData = {
+        firstName: document.getElementById('userFirstName').value,
+        lastName: document.getElementById('userLastName').value,
+        email: document.getElementById('userEmail').value,
+        mobile: document.getElementById('userMobile').value,
+        floor: document.getElementById('userFloor').value,
+        room: document.getElementById('userRoom').value,
+        password: document.getElementById('userPassword').value,
+        isAdmin: document.getElementById('userIsAdmin').checked
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            alert('User created successfully!');
+            document.getElementById('userModal').classList.remove('active');
+            loadUsers();
+            loadDashboard();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to create user');
+        }
+    } catch (error) {
+        console.error('Create User Error:', error);
+        alert('Failed to create user');
+    }
+}
+
+let targetUserId = null;
+
+function openResetPasswordModal(userId, userName) {
+    targetUserId = userId;
+    const targetEl = document.getElementById('resetTargetUser');
+    if (targetEl) targetEl.textContent = userName;
+    document.getElementById('newPassword').value = '';
+    document.getElementById('resetPasswordModal').classList.add('active');
+}
+
+async function resetPassword(e) {
+    if (e) e.preventDefault();
+    if (!targetUserId) return;
+
+    const newPassword = document.getElementById('newPassword').value;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/users/${targetUserId}/reset-password`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ newPassword })
+        });
+
+        if (response.ok) {
+            alert('Password reset successfully!');
+            document.getElementById('resetPasswordModal').classList.remove('active');
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to reset password');
+        }
+    } catch (error) {
+        console.error('Reset Password Error:', error);
+        alert('Failed to reset password');
+    }
+}
+
 async function loadUsers() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
@@ -306,20 +417,27 @@ function renderUsers(users) {
 
     tbody.innerHTML = users.map(user => `
         <tr>
-            <td>${user.firstName} ${user.lastName}</td>
+            <td>
+                <div style="font-weight: 500;">${user.firstName} ${user.lastName}</div>
+            </td>
             <td>${user.email}</td>
             <td>${user.mobile || 'N/A'}</td>
             <td>Floor ${user.floor}, Room ${user.room}</td>
-            <td>${user.isAdmin ? '👑 Yes' : 'No'}</td>
+            <td>${user.isAdmin ? '<span style="color:#f97316">👑 Yes</span>' : 'No'}</td>
             <td>
-                ${!user.isAdmin ? `
-                    <button class="btn btn-small btn-primary" onclick="makeAdmin('${user._id}')">
-                        Make Admin
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-small btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openResetPasswordModal('${user._id}', '${user.firstName.replace(/'/g, "\\'") + ' ' + user.lastName.replace(/'/g, "\\'")}')">
+                        Reset Pwd
                     </button>
-                ` : ''}
-                <button class="btn btn-small btn-ghost" onclick="deleteUser('${user._id}')">
-                    Delete
-                </button>
+                    ${!user.isAdmin ? `
+                        <button class="btn btn-small btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="makeAdmin('${user._id}')">
+                            Promote
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-small btn-ghost" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #ef4444;" onclick="deleteUser('${user._id}')">
+                        Delete
+                    </button>
+                </div>
             </td>
         </tr>
     `).join('');
@@ -349,7 +467,7 @@ async function makeAdmin(userId) {
 }
 
 async function deleteUser(userId) {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {

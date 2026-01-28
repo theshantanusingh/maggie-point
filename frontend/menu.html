@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Full Menu - Maggie Point">
+    <title>Our Menu - Maggie Point</title>
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Reuse main css but maybe add specific menu styles if needed -->
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .menu-page-header {
+            padding-top: 120px;
+            padding-bottom: 2rem;
+            text-align: center;
+            background: #0f0f0f;
+        }
+
+        .category-section {
+            padding: 3rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .category-title {
+            font-size: 2rem;
+            color: #f97316;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .category-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, #f97316 0%, transparent 100%);
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="brand-logo">
+                <span class="logo-icon">🍜</span>
+                <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
+            </a>
+
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/menu.html" class="nav-link active">Menu</a>
+                <a href="/#features" class="nav-link">Features</a>
+                <a href="/#reviews" class="nav-link">Reviews</a>
+            </div>
+
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-ghost">Log In</a>
+                <a href="/signup" class="btn btn-primary">Sign Up</a>
+                <button class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="menu-page-header">
+        <div class="container">
+            <h1 class="hero-title">Our Full <span class="text-gradient">Menu</span></h1>
+            <p class="hero-subtitle">Explore our delicious range of late-night cravings</p>
+        </div>
+    </section>
+
+    <!-- Menu Content -->
+    <div id="fullMenuContainer" style="background: #0a0a0a; min-height: 60vh;">
+        <!-- Categories will be injected here -->
+        <div class="container" style="text-align: center; padding: 4rem;">
+            <div class="loading-spinner"></div>
+            <p style="color: rgba(255,255,255,0.6); margin-top: 1rem;">Loading delicious dishes...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="brand-logo">
+                        <span class="logo-icon">🍜</span>
+                        <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
+                    </a>
+                    <p class="footer-desc">Delivering happiness to your hostel room, one bowl at a time.</p>
+                </div>
+                <!-- ... footer content same as index ... -->
+                <div class="footer-links">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/menu.html">Menu</a></li>
+                        <li><a href="/login">Login</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Maggie Point. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Custom script for menu page
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('fullMenuContainer');
+
+            try {
+                const API_BASE_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+                const response = await fetch(`${API_BASE_URL}/api/admin/dishes/available`);
+
+                if (!response.ok) throw new Error('Failed to load menu');
+
+                const data = await response.json();
+                const dishes = data.dishes || [];
+
+                if (dishes.length === 0) {
+                    container.innerHTML = '<div class="container" style="text-align:center; padding: 4rem; color:white;">No dishes available currently.</div>';
+                    return;
+                }
+
+                // Group by category
+                const categories = {};
+                dishes.forEach(dish => {
+                    if (!categories[dish.category]) categories[dish.category] = [];
+                    categories[dish.category].push(dish);
+                });
+
+                let html = '';
+                const categoryOrder = ['Maggie', 'Snacks', 'Beverages', 'Combo'];
+
+                // Sort categories based on predefined order, then others
+                const sortedKeys = Object.keys(categories).sort((a, b) => {
+                    const idxA = categoryOrder.indexOf(a);
+                    const idxB = categoryOrder.indexOf(b);
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return a.localeCompare(b);
+                });
+
+                sortedKeys.forEach(cat => {
+                    html += `
+                        <section class="category-section">
+                            <div class="container">
+                                <h2 class="category-title">${cat}</h2>
+                                <div class="menu-grid">
+                                    ${categories[cat].map(dish => `
+                                        <div class="menu-item">
+                                            <div class="menu-item-image">${dish.emoji || '🍜'}</div>
+                                            <div class="menu-item-content">
+                                                <h3 class="menu-item-title">${dish.name}</h3>
+                                                <p class="menu-item-desc">${dish.description}</p>
+                                                <div class="menu-item-footer">
+                                                    <span class="menu-item-price">₹${dish.price}</span>
+                                                    <button class="btn btn-small btn-primary">Add to Cart</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </section>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+                // Re-init animations for new elements if needed
+                if (window.initScrollAnimations) window.initScrollAnimations();
+
+            } catch (error) {
+                console.error('Menu Load Error:', error);
+                container.innerHTML = '<div class="container" style="text-align:center; padding: 4rem; color: rgba(255,255,255,0.7);">Failed to load menu. Please refresh page.</div>';
+            }
+        });
+    </script>
+</body>
+
+</html>

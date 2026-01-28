@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const { auth, isAdmin } = require('../middleware/auth');
 const User = require('../models/User');
 const Dish = require('../models/Dish');
@@ -151,6 +152,82 @@ router.put('/users/:id', auth, isAdmin, async (req, res) => {
     } catch (error) {
         console.error('Update User Error:', error);
         res.status(500).json({ message: 'Failed to update user', error: error.message });
+    }
+});
+
+// Create user (admin only) - Manual creation via helpline
+router.post('/users', auth, isAdmin, async (req, res) => {
+    try {
+        const { firstName, lastName, email, mobile, floor, room, password, isAdmin: isStartAdmin } = req.body;
+
+        // Validate
+        if (!firstName || !lastName || !email || !password || !floor || !room) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // Check exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists with this email' });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+            firstName,
+            lastName,
+            email,
+            mobile,
+            password: hashedPassword,
+            floor,
+            room,
+            isVerified: true, // Admin created users are verified
+            isAdmin: isStartAdmin || false
+        });
+
+        res.status(201).json({
+            message: 'User created successfully',
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                isAdmin: user.isAdmin
+            }
+        });
+    } catch (error) {
+        console.error('Create User Error:', error);
+        res.status(500).json({ message: 'Failed to create user', error: error.message });
+    }
+});
+
+// Reset User Password (admin only)
+router.put('/users/:id/reset-password', auth, isAdmin, async (req, res) => {
+    try {
+        const { newPassword } = req.body;
+
+        if (!newPassword || newPassword.length < 4) {
+            return res.status(400).json({ message: 'Password must be at least 4 characters long' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { password: hashedPassword },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ message: 'Password reset successfully' });
+
+    } catch (error) {
+        console.error('Reset Password Error:', error);
+        res.status(500).json({ message: 'Failed to reset password', error: error.message });
     }
 });
 

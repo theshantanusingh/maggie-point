@@ -132,8 +132,14 @@
                 <section id="section-users" class="content-section">
                     <div class="section-header">
                         <h2 class="section-subtitle">All Users</h2>
-                        <div class="search-box">
-                            <input type="text" placeholder="Search users..." id="userSearch">
+                        <div style="display: flex; gap: 1rem;">
+                            <div class="search-box">
+                                <input type="text" placeholder="Search users..." id="userSearch">
+                            </div>
+                            <button class="btn btn-primary" id="createUserBtn">
+                                <span>➕</span>
+                                <span>Create User</span>
+                            </button>
                         </div>
                     </div>
                     <div class="table-container">
@@ -215,6 +221,87 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" id="cancelDishBtn">Cancel</button>
                     <button type="submit" class="btn btn-primary" id="saveDishBtn">Save Dish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New User</h3>
+                <button class="modal-close" id="closeUserModal">&times;</button>
+            </div>
+            <form class="modal-body" id="userForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="userFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="userLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mobile</label>
+                    <input type="tel" class="form-input" id="userMobile" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Floor</label>
+                        <select class="form-select" id="userFloor" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Room</label>
+                        <input type="text" class="form-input" id="userRoom" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="userPassword" required minlength="4">
+                </div>
+                <div class="form-checkbox">
+                    <input type="checkbox" id="userIsAdmin">
+                    <label for="userIsAdmin">Make Admin Account</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelUserBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal" id="resetPasswordModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Reset Password</h3>
+                <button class="modal-close" id="closeResetModal">&times;</button>
+            </div>
+            <form class="modal-body" id="resetPasswordForm">
+                <p style="margin-bottom: 1rem; color: rgba(255,255,255,0.7);">
+                    Resetting password for: <strong id="resetTargetUser" style="color:white;"></strong>
+                </p>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-input" id="newPassword" required minlength="4">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelResetBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Reset Password</button>
                 </div>
             </form>
         </div>
