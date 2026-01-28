@@ -4,9 +4,12 @@
 
 const getApiUrl = () => {
     const host = window.location.hostname;
-    const protocol = window.location.protocol;
-    if (host.includes('maggiepoint.onessa.agency')) return '';
-    return `${protocol}//${host}:3000`;
+    // If we're on localhost or local IP, use port 3000
+    if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.')) {
+        return `http://${host}:3000`;
+    }
+    // For VPS/Production, use relative paths to work with Nginx/Proxy
+    return '';
 };
 const API_BASE_URL = getApiUrl();
 

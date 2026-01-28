@@ -3,9 +3,9 @@
    =================================== */
 
 // API Base URL - Auto-detects environment
-const API_BASE_URL = window.location.hostname === 'maggiepoint.onessa.agency' || window.location.hostname === 'www.maggiepoint.onessa.agency' || window.location.hostname === '72.62.199.218'
-    ? ''
-    : 'http://localhost:3000';
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
+    ? 'http://localhost:3000'
+    : '';
 
 document.addEventListener('DOMContentLoaded', function () {
     // Determine which page we're on
