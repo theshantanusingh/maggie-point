@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // === AUTHENTICATION ===
 function checkAuth() {
-    authToken = localStorage.getItem('authToken');
+    authToken = localStorage.getItem('token');
 
     if (!authToken) {
         window.location.href = '/login';
@@ -54,7 +54,7 @@ async function loadUserProfile() {
 
 // Logout
 document.getElementById('logoutBtn').addEventListener('click', function () {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/login';
 });
