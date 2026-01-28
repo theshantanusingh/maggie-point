@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Maggie Point</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #f97316;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Settings Page */
+        .settings-page {
+            padding: 120px 0 80px;
+            min-height: 100vh;
+        }
+
+        .settings-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .settings-header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .gradient {
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin: 0 auto 30px;
+        }
+
+        .profile-info {
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .profile-email {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+        }
+
+        .profile-details {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .settings-header h1 {
+                font-size: 32px;
+            }
+
+            .profile-card {
+                padding: 30px 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🍜 MaggiePoint</a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/menu">Menu</a></li>
+                <li><a href="/settings" class="active">Settings</a></li>
+            </ul>
+            <div class="nav-buttons" id="navButtons">
+                <!-- Populated by navbar.js -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Settings Page -->
+    <section class="settings-page">
+        <div class="container">
+            <div class="settings-header">
+                <h1>Your <span class="gradient">Profile</span></h1>
+            </div>
+
+            <div class="settings-container">
+                <div class="profile-card">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+
+                    <div class="profile-info">
+                        <h2 class="profile-name" id="profileName">Loading...</h2>
+                        <p class="profile-email" id="profileEmail">-</p>
+                    </div>
+
+                    <div class="profile-details" id="profileDetails">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-danger" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/navbar.js"></script>
+    <script>
+        // Check if user is logged in
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+
+        if (!token || !userStr) {
+            // Not logged in, redirect to login
+            window.location.href = '/login';
+        } else {
+            // Load user profile
+            try {
+                const user = JSON.parse(userStr);
+
+                // Update avatar
+                const initial = (user.firstName || 'U').charAt(0).toUpperCase();
+                document.getElementById('profileAvatar').textContent = initial;
+
+                // Update name and email
+                document.getElementById('profileName').textContent = `${user.firstName} ${user.lastName}`;
+                document.getElementById('profileEmail').textContent = user.email;
+
+                // Update details
+                const detailsHtml = `
+                    <div class="detail-row">
+                        <span class="detail-label">Mobile</span>
+                        <span class="detail-value">${user.mobile || 'Not provided'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Floor</span>
+                        <span class="detail-value">${user.floor || '-'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Room</span>
+                        <span class="detail-value">${user.room || '-'}</span>
+                    </div>
+                    ${user.isAdmin ? '<div class="detail-row"><span class="detail-label">Role</span><span class="detail-value" style="color: #f97316;">👑 Admin</span></div>' : ''}
+                `;
+
+                document.getElementById('profileDetails').innerHTML = detailsHtml;
+
+            } catch (e) {
+                console.error('Error loading profile:', e);
+                window.location.href = '/login';
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+
+</html>
