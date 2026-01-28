@@ -14,9 +14,14 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
-        /* Menu Page Specific Styles */
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+
+        /* Menu Hero */
         .menu-hero {
-            padding: 160px 0 80px;
+            padding: 180px 0 100px;
             background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
             text-align: center;
             position: relative;
@@ -26,161 +31,263 @@
         .menu-hero::before {
             content: '';
             position: absolute;
-            top: 0;
+            top: -50%;
             left: 50%;
             transform: translateX(-50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
             pointer-events: none;
         }
 
-        .menu-hero-title {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 800;
-            margin-bottom: 1rem;
+        .menu-hero-content {
             position: relative;
+            z-index: 1;
+        }
+
+        .menu-hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
         }
 
         .menu-hero-subtitle {
-            font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.6);
-            max-width: 600px;
-            margin: 0 auto;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
         }
 
+        .text-gradient {
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Filter Bar */
+        .filter-section {
+            background: #0a0a0a;
+            padding: 2rem 0;
+            position: sticky;
+            top: 80px;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 0.875rem 1.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn:hover {
+            background: rgba(249, 115, 22, 0.15);
+            border-color: rgba(249, 115, 22, 0.4);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+        }
+
+        /* Menu Content */
         .menu-content {
             background: #0a0a0a;
             padding: 4rem 0 6rem;
-            min-height: 50vh;
+            min-height: 60vh;
         }
 
         .category-section {
-            margin-bottom: 4rem;
+            margin-bottom: 5rem;
         }
 
         .category-header {
             display: flex;
             align-items: center;
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(249, 115, 22, 0.2);
         }
 
         .category-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
-            border: 1px solid rgba(249, 115, 22, 0.3);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-        }
-
-        .category-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .category-count {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 0.25rem;
-        }
-
-        .category-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(249, 115, 22, 0.5) 0%, transparent 100%);
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .menu-card {
-            background: linear-gradient(145deg, rgba(26, 26, 26, 0.6) 0%, rgba(15, 15, 15, 0.8) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            display: flex;
-            gap: 1.25rem;
-        }
-
-        .menu-card:hover {
-            border-color: rgba(249, 115, 22, 0.3);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .menu-card-emoji {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.05) 100%);
-            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
+            border: 2px solid rgba(249, 115, 22, 0.3);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             flex-shrink: 0;
         }
 
-        .menu-card-content {
+        .category-info {
             flex: 1;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .category-count {
+            font-size: 0.9375rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .menu-card {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .menu-card:hover {
+            border-color: rgba(249, 115, 22, 0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(249, 115, 22, 0.2);
+        }
+
+        .menu-card:hover::before {
+            opacity: 1;
+        }
+
+        .menu-card-header {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-card-emoji {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:hover .menu-card-emoji {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .menu-card-info {
+            flex: 1;
         }
 
         .menu-card-name {
-            font-size: 1.125rem;
-            font-weight: 600;
+            font-size: 1.375rem;
+            font-weight: 700;
             color: #ffffff;
             margin-bottom: 0.5rem;
+            line-height: 1.3;
         }
 
         .menu-card-description {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.5);
-            line-height: 1.5;
-            flex: 1;
-            margin-bottom: 1rem;
+            font-size: 0.9375rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
         }
 
         .menu-card-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 1rem;
         }
 
         .menu-card-price {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #f97316;
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .menu-card-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.9375rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
         }
 
         .menu-card-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.5);
         }
 
-        .loading-container {
+        .menu-card-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Loading & Empty States */
+        .loading-container,
+        .empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -190,9 +297,9 @@
         }
 
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(249, 115, 22, 0.2);
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(249, 115, 22, 0.2);
             border-top-color: #f97316;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -205,51 +312,34 @@
         }
 
         .loading-text {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 1rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.125rem;
         }
 
         .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
         }
 
-        .filter-bar {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 3rem;
-            justify-content: center;
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
         }
 
-        .filter-btn {
-            padding: 0.75rem 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 100px;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
         }
 
-        .filter-btn:hover {
-            background: rgba(249, 115, 22, 0.1);
-            border-color: rgba(249, 115, 22, 0.3);
-            color: #f97316;
-        }
-
-        .filter-btn.active {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            border-color: transparent;
-            color: white;
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -257,28 +347,49 @@
                 padding: 140px 0 60px;
             }
 
+            .category-header {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
             .menu-card {
+                padding: 1.5rem;
+            }
+
+            .menu-card-header {
                 flex-direction: column;
                 text-align: center;
             }
 
-            .menu-card-emoji {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto;
+            .filter-bar {
+                gap: 0.75rem;
             }
 
+            .filter-btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.875rem;
+            }
+
+            .filter-section {
+                top: 70px;
+                padding: 1.5rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
             .menu-card-footer {
                 flex-direction: column;
                 gap: 1rem;
             }
 
-            .category-header {
-                flex-wrap: wrap;
-            }
-
-            .category-line {
-                display: none;
+            .menu-card-btn {
+                width: 100%;
             }
         }
     </style>
@@ -293,7 +404,7 @@
                 <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
             </a>
 
-            <div class="nav-links">
+            <div class="nav-links" id="navLinks">
                 <a href="/" class="nav-link">Home</a>
                 <a href="/menu" class="nav-link active">Menu</a>
                 <a href="/#features" class="nav-link">Features</a>
@@ -303,7 +414,7 @@
             <div class="nav-actions">
                 <a href="/login" class="btn btn-ghost">Log In</a>
                 <a href="/signup" class="btn btn-primary">Sign Up</a>
-                <button class="mobile-menu-toggle">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -314,26 +425,44 @@
 
     <!-- Hero Section -->
     <section class="menu-hero">
-        <div class="container">
+        <div class="container menu-hero-content">
             <h1 class="menu-hero-title">Our <span class="text-gradient">Delicious</span> Menu</h1>
-            <p class="menu-hero-subtitle">From classic maggie to refreshing beverages, we've got your late-night
-                cravings covered</p>
+            <p class="menu-hero-subtitle">From classic maggie to refreshing beverages, we've got everything you need for
+                those late-night cravings</p>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-bar" id="filterBar">
+                <button class="filter-btn active" data-filter="all">
+                    <span>🍽️</span>
+                    <span>All Items</span>
+                </button>
+                <button class="filter-btn" data-filter="Maggie">
+                    <span>🍜</span>
+                    <span>Maggie</span>
+                </button>
+                <button class="filter-btn" data-filter="Snacks">
+                    <span>🍿</span>
+                    <span>Snacks</span>
+                </button>
+                <button class="filter-btn" data-filter="Beverages">
+                    <span>☕</span>
+                    <span>Beverages</span>
+                </button>
+                <button class="filter-btn" data-filter="Combo">
+                    <span>🎁</span>
+                    <span>Combos</span>
+                </button>
+            </div>
         </div>
     </section>
 
     <!-- Menu Content -->
     <section class="menu-content">
         <div class="container">
-            <!-- Filter Bar -->
-            <div class="filter-bar" id="filterBar">
-                <button class="filter-btn active" data-filter="all">All Items</button>
-                <button class="filter-btn" data-filter="Maggie">🍜 Maggie</button>
-                <button class="filter-btn" data-filter="Snacks">🍿 Snacks</button>
-                <button class="filter-btn" data-filter="Beverages">☕ Beverages</button>
-                <button class="filter-btn" data-filter="Combo">🎁 Combos</button>
-            </div>
-
-            <!-- Menu Container -->
             <div id="menuContainer">
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
@@ -386,7 +515,20 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await loadMenu();
             initFilters();
+            initMobileMenu();
         });
+
+        function initMobileMenu() {
+            const toggle = document.getElementById('mobileMenuToggle');
+            const navLinks = document.getElementById('navLinks');
+
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    toggle.classList.toggle('active');
+                });
+            }
+        }
 
         async function loadMenu() {
             const container = document.getElementById('menuContainer');
@@ -428,7 +570,6 @@
         function renderMenu(dishes) {
             const container = document.getElementById('menuContainer');
 
-            // Group by category
             const categories = {};
             const categoryEmojis = {
                 'Maggie': '🍜',
@@ -443,7 +584,6 @@
                 categories[cat].push(dish);
             });
 
-            // Sort categories
             const categoryOrder = ['Maggie', 'Snacks', 'Beverages', 'Combo'];
             const sortedKeys = Object.keys(categories).sort((a, b) => {
                 const idxA = categoryOrder.indexOf(a);
@@ -461,23 +601,24 @@
                     <div class="category-section" data-category="${cat}">
                         <div class="category-header">
                             <div class="category-icon">${categoryEmojis[cat] || '🍽️'}</div>
-                            <div>
+                            <div class="category-info">
                                 <h2 class="category-title">${cat}</h2>
-                                <p class="category-count">${categories[cat].length} item${categories[cat].length > 1 ? 's' : ''}</p>
+                                <p class="category-count">${categories[cat].length} delicious item${categories[cat].length > 1 ? 's' : ''}</p>
                             </div>
-                            <div class="category-line"></div>
                         </div>
                         <div class="menu-grid">
                             ${categories[cat].map(dish => `
                                 <div class="menu-card">
-                                    <div class="menu-card-emoji">${dish.emoji || '🍜'}</div>
-                                    <div class="menu-card-content">
-                                        <h3 class="menu-card-name">${dish.name}</h3>
-                                        <p class="menu-card-description">${dish.description}</p>
-                                        <div class="menu-card-footer">
-                                            <span class="menu-card-price">₹${dish.price}</span>
-                                            <button class="menu-card-btn">Add to Cart</button>
+                                    <div class="menu-card-header">
+                                        <div class="menu-card-emoji">${dish.emoji || '🍜'}</div>
+                                        <div class="menu-card-info">
+                                            <h3 class="menu-card-name">${dish.name}</h3>
                                         </div>
+                                    </div>
+                                    <p class="menu-card-description">${dish.description}</p>
+                                    <div class="menu-card-footer">
+                                        <span class="menu-card-price">₹${dish.price}</span>
+                                        <button class="menu-card-btn">Add to Cart</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -494,7 +635,6 @@
 
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', function () {
-                    // Update active state
                     filterBtns.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
 
