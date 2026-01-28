@@ -392,6 +392,153 @@
                 width: 100%;
             }
         }
+
+        /* Navbar Override Styles */
+        .navbar {
+            background: rgba(10, 10, 10, 0.98) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6) !important;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.15) !important;
+        }
+
+        .navbar-container {
+            padding: 1.25rem 2rem !important;
+        }
+
+        .brand-logo {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+        }
+
+        .logo-icon {
+            font-size: 2rem !important;
+            filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.7)) !important;
+        }
+
+        .logo-text {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500 !important;
+            font-size: 1rem !important;
+        }
+
+        .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .nav-link.active {
+            color: #f97316 !important;
+            font-weight: 600 !important;
+        }
+
+        .btn-ghost {
+            color: rgba(255, 255, 255, 0.9) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            border-color: rgba(249, 115, 22, 0.4) !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4) !important;
+        }
+
+        /* Footer Override Styles */
+        .footer {
+            background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%) !important;
+            border-top: 1px solid rgba(249, 115, 22, 0.15) !important;
+            padding: 4rem 0 2rem !important;
+            color: #ffffff !important;
+        }
+
+        .footer-brand {
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-brand .brand-logo {
+            margin-bottom: 1rem;
+            display: inline-flex;
+        }
+
+        .footer-desc {
+            color: rgba(255, 255, 255, 0.6) !important;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+            max-width: 300px;
+        }
+
+        .footer-grid {
+            display: grid !important;
+            grid-template-columns: 2fr 1fr 1fr !important;
+            gap: 3rem !important;
+            margin-bottom: 3rem !important;
+        }
+
+        .footer-title {
+            color: #ffffff !important;
+            font-size: 1.125rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 1.25rem !important;
+        }
+
+        .footer-links ul {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem !important;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7) !important;
+            text-decoration: none !important;
+            font-size: 0.9375rem !important;
+            transition: all 0.2s ease !important;
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: #f97316 !important;
+            transform: translateX(5px);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            text-align: center !important;
+        }
+
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.5) !important;
+            font-size: 0.9375rem !important;
+            margin: 0 !important;
+        }
+
+        /* Mobile Responsive Overrides */
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 2rem !important;
+            }
+
+            .footer-desc {
+                max-width: 100%;
+            }
+
+            .navbar-container {
+                padding: 1rem 1.5rem !important;
+            }
+        }
     </style>
 </head>
 
