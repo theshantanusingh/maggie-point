@@ -171,18 +171,51 @@ function renderOrders(orders) {
                 ${order.deliveryDetails.specialInstructions ? `<div style="font-size:12px; color:#f97316; margin-top:5px">Note: ${order.deliveryDetails.specialInstructions}</div>` : ''}
             </div>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end">
-                ${(order.status === 'pending' || order.status === 'payment_pending') ? `
-                    <button class="btn btn-primary btn-small" onclick="verifyPayment('${order._id}')">✅ Verify & Confirm</button>
-                    <button class="btn btn-ghost btn-small" style="color:#ef4444" onclick="updateOrderStatus('${order._id}', 'cancelled')">❌ Cancel</button>
-                ` : ''}
+            <div class="order-actions">
+                <div style="margin-bottom: 10px; display: flex; gap: 5px; align-items: center;">
+                   <span style="font-size: 12px; color: #888">Time (min):</span>
+                   <input type="number" value="${order.estimatedDeliveryTime || 10}" style="width: 50px; padding: 4px; border-radius: 4px; border: 1px solid #444; background: #222; color: white" id="time-${order._id}">
+                   <button class="btn btn-small btn-outline" style="padding: 4px 8px" onclick="updateTime('${order._id}')">Set</button>
+                </div>
 
-                ${(order.status === 'confirmed') ? `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'preparing')">👨‍🍳 Start Preparing</button>` : ''}
-                ${(order.status === 'preparing') ? `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'out_for_delivery')">🛵 Out for Delivery</button>` : ''}
-                ${(order.status === 'out_for_delivery') ? `<button class="btn btn-primary btn-small" style="background:#22c55e" onclick="updateOrderStatus('${order._id}', 'delivered')">🎉 Mark Delivered</button>` : ''}
+                <div style="display:flex; gap:5px; flex-wrap:wrap; justify-content: flex-end;">
+                    ${(order.status === 'pending' || order.status === 'payment_pending') ? `
+                        <button class="btn btn-primary btn-small" onclick="verifyPayment('${order._id}')">✅ Verify</button>
+                    ` : ''}
+
+                    ${(order.status === 'confirmed') ?
+            `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'preparing')">👨‍🍳 Prepare</button>` : ''}
+                    
+                    ${(order.status === 'preparing') ?
+            `<button class="btn btn-primary btn-small" onclick="updateOrderStatus('${order._id}', 'out_for_delivery')">🛵 Send</button>` : ''}
+                    
+                    ${(order.status === 'out_for_delivery') ?
+            `<button class="btn btn-success btn-small" onclick="updateOrderStatus('${order._id}', 'delivered')">🎉 Done</button>` : ''}
+
+                    ${order.status !== 'cancelled' && order.status !== 'delivered' ?
+            `<button class="btn btn-ghost btn-small" style="color:#ef4444" onclick="updateOrderStatus('${order._id}', 'cancelled')">❌ Cancel</button>` : ''}
+                </div>
             </div>
         </div>
     `).join('');
+}
+
+async function updateTime(orderId) {
+    const minutes = document.getElementById(`time-${orderId}`).value;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/orders/${orderId}/time`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ minutes })
+        });
+        if (response.ok) {
+            alert('Time updated!');
+            // Don't reload entire list to keep position, just alert
+        }
+    } catch (e) { alert('Error updating time'); }
 }
 
 async function verifyPayment(orderId) {

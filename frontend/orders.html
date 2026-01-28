@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Maggie Point</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .orders-section {
+            padding: 120px 0 60px;
+            min-height: 100vh;
+        }
+
+        .orders-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: white;
+        }
+
+        .order-card:hover {
+            border-color: #f97316;
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Status Colors */
+        .status-pending,
+        .status-payment_pending {
+            background: rgba(234, 179, 8, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-confirmed {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .status-preparing {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        .status-out_for_delivery {
+            background: rgba(168, 85, 247, 0.2);
+            color: #c084fc;
+        }
+
+        .status-delivered {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .order-items {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="brand-logo">🍜 MaggiePoint</a>
+            <div class="nav-links">
+                <a href="/menu" class="nav-link">Menu</a>
+                <a href="/cart.html" class="nav-link">Cart</a>
+            </div>
+
+            <!-- Cart Icon -->
+            <a href="/cart.html" class="cart-icon"
+                style="position: relative; margin-left: 20px; color: white; text-decoration: none; display: flex; align-items: center;">
+                <span style="font-size: 24px;">🛒</span>
+                <span class="cart-count"
+                    style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; font-size: 12px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; display: none;">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <section class="orders-section">
+        <div class="container orders-container">
+            <h1>My Orders</h1>
+            <div id="ordersList">
+                <div class="loading">Loading orders...</div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadOrders);
+
+        async function loadOrders() {
+            const container = document.getElementById('ordersList');
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+                const response = await fetch(`${API_URL}/api/orders/my-orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch');
+
+                const data = await response.json();
+                const orders = data.orders;
+
+                if (orders.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:40px;">No orders found.<br><a href="/menu" class="btn btn-primary" style="margin-top:20px; display:inline-block">Order Now</a></div>';
+                    return;
+                }
+
+                container.innerHTML = orders.map(order => `
+                    <a href="/track-order?id=${order._id}" class="order-card">
+                        <div class="order-header">
+                            <span class="order-id">#${order._id.slice(-6).toUpperCase()}</span>
+                            <span class="status-badge status-${order.status}">${order.status.replace('_', ' ')}</span>
+                        </div>
+                        <div class="order-items">
+                            ${order.items.map(i => `<div>${i.quantity}x ${i.name}</div>`).join('')}
+                        </div>
+                        <div class="order-footer">
+                            <span>${new Date(order.createdAt).toLocaleString()}</span>
+                            <span style="color:white; font-weight:600">₹${order.totalAmount}</span>
+                        </div>
+                    </a>
+                `).join('');
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<div class="loading">Failed to load orders</div>';
+            }
+        }
+    </script>
+</body>
+
+</html>

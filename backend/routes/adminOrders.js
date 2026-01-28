@@ -97,6 +97,29 @@ router.put('/:orderId/status', authenticateToken, requireAdmin, async (req, res)
     }
 });
 
+// Update estimated time (admin only)
+router.put('/:orderId/time', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { minutes } = req.body;
+        const order = await Order.findById(req.params.orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.estimatedDeliveryTime = minutes;
+        await order.save();
+
+        res.json({
+            message: 'Estimated delivery time updated',
+            order
+        });
+    } catch (error) {
+        console.error('Update time error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Get order statistics (admin only)
 router.get('/stats/summary', authenticateToken, requireAdmin, async (req, res) => {
     try {

@@ -217,8 +217,8 @@
             }
             fetchOrder(orderId);
 
-            // Poll for updates every 10 seconds
-            setInterval(() => fetchOrder(orderId), 10000);
+            // Poll for updates every 2 seconds
+            setInterval(() => fetchOrder(orderId), 2000);
         });
 
         async function fetchOrder(id) {
@@ -272,15 +272,42 @@
 
             // Timer Logic
             if (['preparing', 'out_for_delivery'].includes(status)) {
-                // Calculate remaining time (10 mins from confirmedAt)
-                // For demo, just show placeholder or calculate real diff if confirmedAt exists
                 document.getElementById('timerSection').style.display = 'block';
+
+                // Calculate time
+                const startTime = new Date(order.preparingAt || order.confirmedAt || Date.now());
+                const estMins = order.estimatedDeliveryTime || 10;
+                const endTime = new Date(startTime.getTime() + estMins * 60000);
+
+                updateTimer(endTime);
+
+                // Clear existing interval if any
+                if (window.timerInterval) clearInterval(window.timerInterval);
+
+                window.timerInterval = setInterval(() => updateTimer(endTime), 1000);
             } else if (status === 'delivered') {
                 document.getElementById('timer').textContent = "Enjoy! 😋";
                 document.getElementById('timerSection').style.display = 'block';
+                if (window.timerInterval) clearInterval(window.timerInterval);
             } else {
                 document.getElementById('timerSection').style.display = 'none';
+                if (window.timerInterval) clearInterval(window.timerInterval);
             }
+        }
+
+        function updateTimer(endTime) {
+            const now = new Date();
+            const diff = endTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('timer').textContent = "00:00";
+                return;
+            }
+
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            document.getElementById('timer').textContent =
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         function updateTimeline(status) {
