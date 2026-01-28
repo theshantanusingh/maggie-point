@@ -6,6 +6,7 @@ const User = require('../models/User');
 const OTP = require('../models/OTP');
 const { sendOTPEmail, sendWelcomeEmail, sendLoginEmail } = require('../services/emailService');
 
+const { authenticateToken } = require('../middleware/auth');
 const logger = require('../utils/logger');
 
 // Generate 6-digit OTP
