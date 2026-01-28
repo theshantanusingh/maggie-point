@@ -224,18 +224,41 @@
         async function fetchOrder(id) {
             try {
                 const token = localStorage.getItem('token');
+
+                // If no token, redirect to login
+                if (!token) {
+                    window.location.href = `/login?redirect=/track-order?id=${id}`;
+                    return;
+                }
+
                 const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
 
                 const response = await fetch(`${API_URL}/api/orders/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                if (!response.ok) throw new Error('Failed to fetch');
+                if (response.status === 401 || response.status === 403) {
+                    // Token expired or invalid
+                    localStorage.removeItem('token');
+                    window.location.href = `/login?redirect=/track-order?id=${id}`;
+                    return;
+                }
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Failed to fetch order');
+                }
+
                 const data = await response.json();
                 renderOrder(data.order);
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading').textContent = 'Error loading order';
+                document.getElementById('loading').innerHTML = `
+                    <div style="padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; max-width: 400px; margin: 0 auto;">
+                        <p style="color: #ef4444; margin-bottom: 15px; font-weight: 600">Error: ${error.message}</p>
+                        <a href="/orders" class="btn btn-outline" style="font-size: 14px">Back to My Orders</a>
+                    </div>
+                `;
             }
         }
 
