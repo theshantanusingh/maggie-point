@@ -23,6 +23,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/orders', require('./routes/orders'));
+app.use('/api/admin/orders', require('./routes/adminOrders'));
 
 // Health check
 app.get('/api/health', (req, res) => {
