@@ -184,16 +184,24 @@ const getOrderStatusEmailTemplate = (user, order, status) => {
             message = `We've received your payment and our chefs are now preparing your order.`;
             break;
         case 'OUT_FOR_DELIVERY':
-            title = 'Out for Delivery!';
-            color = '#f97316';
-            icon = '🛵';
-            message = `Your order is on its way to your room. Get ready for something delicious!`;
+            if (order.deliveryType === 'takeaway') {
+                title = 'Ready for Pickup!';
+                color = '#f97316';
+                icon = '🥡';
+                message = `Your order is ready at the counter! Please come and collect it while it's hot. 🔥`;
+            } else {
+                title = 'Out for Delivery!';
+                color = '#f97316';
+                icon = '🛵';
+                message = `Your order is on its way to your room. Get ready for something delicious!`;
+            }
             break;
         case 'DELIVERED':
-            title = 'Order Delivered!';
+            title = (order.deliveryType === 'takeaway') ? 'Order Collected!' : 'Order Delivered!';
             color = '#3b82f6';
             icon = '😋';
             message = `Enjoy your meal! We hope it satisfies your cravings.`;
+            if (order.deliveryType === 'takeaway') message = `Thanks for stopping by! Enjoy your delicious meal.`;
             break;
         case 'CANCELLED':
             title = 'Order Cancelled';

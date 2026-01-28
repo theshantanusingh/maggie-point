@@ -204,8 +204,8 @@
                             <div class="step-label">Preparing</div>
                         </div>
                         <div class="step" id="step4">
-                            <div class="step-circle">🛵</div>
-                            <div class="step-label">Out for Delivery</div>
+                            <div class="step-circle" id="step4Icon">🛵</div>
+                            <div class="step-label" id="step4Label">Out for Delivery</div>
                         </div>
                     </div>
 
@@ -313,18 +313,42 @@
             const status = order.status;
             updateTimeline(status);
 
+            const isTakeaway = order.deliveryType === 'takeaway';
+
             // Update Text
             const titles = {
                 'payment_pending': 'Waiting for Payment',
                 'pending': 'Verifying Payment',
                 'confirmed': 'Order Confirmed',
                 'preparing': 'Preparing Food',
-                'out_for_delivery': 'Out for Delivery',
-                'delivered': 'Delivered',
+                'out_for_delivery': isTakeaway ? 'Ready for Pickup' : 'Out for Delivery',
+                'delivered': isTakeaway ? 'Order Collected' : 'Delivered',
                 'cancelled': 'Order Cancelled'
             };
+
+            const descriptions = {
+                'preparing': isTakeaway ? 'Chef is making your meal. We will notify you when it is ready!' : 'Our chef is preparing your meal',
+                'out_for_delivery': isTakeaway ? 'Your order is ready at the counter! Please come and collect it. 🥡' : 'Your order is on its way to you! 🛵',
+                'delivered': isTakeaway ? 'Thanks for collecting your order! Enjoy your meal. 😋' : 'Order delivered! Enjoy your meal 😋'
+            };
+
             document.getElementById('statusTitle').textContent = titles[status] || status;
+            if (descriptions[status]) {
+                document.getElementById('statusDesc').textContent = descriptions[status];
+            }
+
             document.getElementById('orderId').textContent = '#' + order._id.slice(-6).toUpperCase();
+
+            // Update Step 4 Label for Takeaway
+            const step4Label = document.getElementById('step4Label');
+            const step4Icon = document.getElementById('step4Icon');
+            if (isTakeaway) {
+                step4Label.textContent = 'Ready for Pickup';
+                step4Icon.textContent = '🥡';
+            } else {
+                step4Label.textContent = 'Out for Delivery';
+                step4Icon.textContent = '🛵';
+            }
 
             // Invoice Button
             if (order.paymentDetails?.paymentVerified) {

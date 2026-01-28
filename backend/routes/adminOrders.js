@@ -50,7 +50,8 @@ router.put('/:orderId/verify-payment', authenticateToken, requireAdmin, async (r
                 mongoId: order._id.toString(),
                 totalAmount: order.totalAmount,
                 room: user.room,
-                floor: user.floor
+                floor: user.floor,
+                deliveryType: order.deliveryType
             }, 'PAID')
                 .catch(err => logger.error(`Silent Email Error: ${err.message}`));
         }
@@ -129,7 +130,8 @@ router.put('/:orderId/status', authenticateToken, requireAdmin, async (req, res)
                     mongoId: order._id.toString(),
                     totalAmount: order.totalAmount,
                     room: user.room,
-                    floor: user.floor
+                    floor: user.floor,
+                    deliveryType: order.deliveryType
                 }, emailStatus)
                     .catch(err => logger.error(`Silent Email Error: ${err.message}`));
             }
@@ -224,7 +226,8 @@ router.post('/:orderId/email-invoice', authenticateToken, requireAdmin, async (r
             mongoId: order._id.toString(),
             totalAmount: order.totalAmount,
             room: user.room,
-            floor: user.floor
+            floor: user.floor,
+            deliveryType: order.deliveryType
         }, 'PAID');
 
         res.json({ message: 'Invoice emailed successfully' });
