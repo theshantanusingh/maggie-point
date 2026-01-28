@@ -52,6 +52,10 @@
                     <span class="nav-icon">📜</span>
                     <span>Activity Feed</span>
                 </a>
+                <a href="#" class="nav-item" data-section="logs">
+                    <span class="nav-icon">💻</span>
+                    <span>System Logs</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -206,6 +210,21 @@
                     <div class="activity-feed" id="activityBox"
                         style="display: flex; flex-direction: column; gap: 12px; height: 600px; overflow-y: auto; padding-right: 10px;">
                         <p style="color: #666; text-align: center; padding: 40px;">Syncing activities...</p>
+                    </div>
+                </section>
+
+                <!-- Raw Logs Section -->
+                <section id="section-logs" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">Terminal Logs (Raw)</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-outline" id="refreshLogsBtn">Refresh Output</button>
+                        </div>
+                    </div>
+                    <div class="logs-container"
+                        style="background: #000; color: #0f0; font-family: 'Courier Prime', monospace; padding: 20px; border-radius: 8px; height: 600px; overflow-y: auto; border: 1px solid #333; line-height: 1.5; font-size: 13px;"
+                        id="logsBox">
+                        Fetching raw logs...
                     </div>
                 </section>
             </div>

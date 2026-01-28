@@ -146,7 +146,8 @@ function initNavigation() {
                 'dishes': 'Manage Dishes',
                 'users': 'Manage Users',
                 'admins': 'Admin Users',
-                'activities': 'Activity Feed'
+                'activities': 'Activity Feed',
+                'logs': 'System Logs'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
 
@@ -156,11 +157,15 @@ function initNavigation() {
             else if (sectionId === 'users') loadUsers();
             else if (sectionId === 'admins') loadAdmins();
             else if (sectionId === 'activities') loadActivities();
+            else if (sectionId === 'logs') loadLogs();
         });
     });
 
     // Refresh Activities Btn
     document.getElementById('refreshActivitiesBtn')?.addEventListener('click', loadActivities);
+
+    // Refresh Logs Btn
+    document.getElementById('refreshLogsBtn')?.addEventListener('click', loadLogs);
 
     // Order Filters
     document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -228,6 +233,46 @@ async function loadActivities() {
         }).join('');
     } catch (error) {
         box.innerHTML = `<p style="color: #ef4444; padding: 20px; text-align: center;">Error: ${error.message}</p>`;
+    }
+}
+
+// === SYSTEM LOGS (RAW) ===
+async function loadLogs() {
+    const logsBox = document.getElementById('logsBox');
+    if (!logsBox) return;
+
+    logsBox.innerHTML = 'Fetching raw terminal output...';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/logs/app`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(`Server responded with ${response.status}: ${errData.message || 'Unknown error'}`);
+        }
+
+        const data = await response.json();
+        const text = data.logs || '';
+
+        if (!text) {
+            logsBox.innerHTML = '<div style="color: #888">No raw logs recorded in file yet.</div>';
+            return;
+        }
+
+        const lines = text.split('\n').filter(Boolean).reverse(); // Latest logs first
+
+        logsBox.innerHTML = lines.map(line => {
+            let color = '#0f0'; // Default green
+            if (line.includes('[ERROR]')) color = '#ff4444';
+            if (line.includes('[WARN]')) color = '#ffbb33';
+
+            return `<div style="color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0;">${line}</div>`;
+        }).join('');
+    } catch (error) {
+        console.error('Log fetch error:', error);
+        logsBox.innerHTML = `<span style="color: #ff4444">Error: ${error.message}</span>`;
     }
 }
 
