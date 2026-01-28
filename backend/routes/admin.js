@@ -389,7 +389,7 @@ router.get('/logs/:type', authenticateToken, requireAdmin, async (req, res) => {
         }
 
         const logs = fs.readFileSync(logFile, 'utf8');
-        res.type('text/plain').send(logs);
+        res.json({ logs });
     } catch (error) {
         logger.error(`Get Logs Error: ${error.message}`);
         res.status(500).json({ message: 'Failed to fetch logs', error: error.message });

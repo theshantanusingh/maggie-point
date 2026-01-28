@@ -3,3 +3,13 @@
 2026-01-28 22:15:18 [INFO]: ✅ MongoDB Connected
 2026-01-28 22:20:32 [INFO]: 🚀 Server running on port 3000
 2026-01-28 22:20:32 [INFO]: 📍 API URL: http://localhost:3000/api
+2026-01-28 22:20:40 [INFO]: ✅ MongoDB Connected
+2026-01-28 22:22:09 [INFO]: GET /api/health - IP: ::1
+2026-01-28 22:22:57 [INFO]: GET /api/admin/logs/app - IP: ::1
+2026-01-28 22:22:57 [WARN]: Auth failed: No token provided for /api/admin/logs/app
+2026-01-28 22:23:30 [INFO]: 🚀 Server running on port 3000
+2026-01-28 22:23:30 [INFO]: 📍 API URL: http://localhost:3000/api
+2026-01-28 22:23:38 [INFO]: ✅ MongoDB Connected
+2026-01-28 22:24:26 [INFO]: 🚀 Server running on port 3000
+2026-01-28 22:24:26 [INFO]: 📍 API URL: http://localhost:3000/api
+2026-01-28 22:24:28 [INFO]: ✅ MongoDB Connected

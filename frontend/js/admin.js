@@ -184,7 +184,8 @@ async function loadLogs() {
             throw new Error(`Server responded with ${response.status}: ${errData.message || 'Unknown error'}`);
         }
 
-        const text = await response.text();
+        const data = await response.json();
+        const text = data.logs || '';
         if (!text) {
             logsBox.innerHTML = '<div style="color: #888">No logs recorded yet.</div>';
             return;
@@ -202,7 +203,8 @@ async function loadLogs() {
     } catch (error) {
         console.error('Log fetch error:', error);
         logsBox.innerHTML = `<span style="color: #ff4444">Error: ${error.message}</span><br>
-                             <small style="color: #888">URL: ${API_BASE_URL}/api/admin/logs/app</small>`;
+                             <small style="color: #888">Target: ${API_BASE_URL}/api/admin/logs/app</small><br>
+                             <small style="color: #666">Check if the backend is running and reachable.</small>`;
     }
 }
 

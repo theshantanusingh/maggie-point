@@ -1,0 +1,6 @@
+(node:97050) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:97050) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+2026-01-28 22:23:30 [[32MINFO[39M]: 🚀 Server running on port 3000
+2026-01-28 22:23:30 [[32MINFO[39M]: 📍 API URL: http://localhost:3000/api
+2026-01-28 22:23:38 [[32MINFO[39M]: ✅ MongoDB Connected
