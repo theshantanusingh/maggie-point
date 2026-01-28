@@ -119,7 +119,7 @@
 
         /* Hero */
         .page-hero {
-            padding: 120px 0 60px;
+            padding: 120px 0 40px;
             text-align: center;
         }
 
@@ -140,40 +140,65 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Menu */
+        /* Category Filters */
+        .filter-section {
+            padding: 30px 0;
+            position: sticky;
+            top: 70px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .filter-btn:hover {
+            background: rgba(249, 115, 22, 0.1);
+            border-color: rgba(249, 115, 22, 0.5);
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 5px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        /* Menu Section */
         .menu-section {
             padding: 40px 0 80px;
         }
 
-        .category {
-            margin-bottom: 60px;
-        }
-
-        .category-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(249, 115, 22, 0.3);
-        }
-
-        .category-icon {
-            font-size: 40px;
-        }
-
-        .category-title {
-            font-size: 32px;
-            font-weight: 700;
-        }
-
         .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 25px;
+            justify-content: center;
         }
 
         .menu-card {
+            flex: 0 1 calc(33.333% - 20px);
+            min-width: 280px;
+            max-width: 350px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
@@ -190,6 +215,7 @@
         .menu-card .emoji {
             font-size: 50px;
             margin-bottom: 15px;
+            text-align: center;
         }
 
         .menu-card h3 {
@@ -252,13 +278,18 @@
                 font-size: 32px;
             }
 
-            .menu-grid {
-                grid-template-columns: 1fr;
+            .menu-card {
+                flex: 1 1 100%;
+                max-width: 100%;
             }
 
-            .category-header {
-                flex-direction: column;
-                text-align: center;
+            .filter-buttons {
+                gap: 10px;
+            }
+
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 14px;
             }
         }
     </style>
@@ -294,15 +325,29 @@
         </div>
     </section>
 
+    <!-- Category Filters -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-buttons" id="filterButtons">
+                <button class="filter-btn active" data-category="all">All Items</button>
+            </div>
+        </div>
+    </section>
+
     <!-- Menu -->
     <section class="menu-section">
-        <div class="container" id="menuContainer">
-            <div class="loading">Loading menu...</div>
+        <div class="container">
+            <div class="menu-grid" id="menuContainer">
+                <div class="loading">Loading menu...</div>
+            </div>
         </div>
     </section>
 
     <script src="/js/navbar.js"></script>
     <script>
+        let allDishes = [];
+        let currentCategory = 'all';
+
         function toggleMenu() {
             document.getElementById('navLinks').classList.toggle('active');
         }
@@ -315,60 +360,84 @@
                 const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
                 const response = await fetch(`${API_URL}/api/admin/dishes/available`);
                 const data = await response.json();
-                const dishes = data.dishes || [];
+                allDishes = data.dishes || [];
 
-                if (dishes.length === 0) {
+                if (allDishes.length === 0) {
                     container.innerHTML = '<div class="loading">No dishes available</div>';
                     return;
                 }
 
-                // Group by category
-                const categories = {};
-                dishes.forEach(dish => {
-                    const cat = dish.category || 'Other';
-                    if (!categories[cat]) categories[cat] = [];
-                    categories[cat].push(dish);
-                });
+                // Create category filters
+                createCategoryFilters();
 
-                // Render categories
-                const categoryIcons = {
-                    'Maggie': '🍜',
-                    'Snacks': '🍿',
-                    'Beverages': '☕',
-                    'Combo': '🎁'
-                };
-
-                let html = '';
-                Object.keys(categories).forEach(cat => {
-                    html += `
-                        <div class="category">
-                            <div class="category-header">
-                                <div class="category-icon">${categoryIcons[cat] || '🍽️'}</div>
-                                <h2 class="category-title">${cat}</h2>
-                            </div>
-                            <div class="menu-grid">
-                                ${categories[cat].map(dish => `
-                                    <div class="menu-card">
-                                        <div class="emoji">${dish.emoji || '🍜'}</div>
-                                        <h3>${dish.name}</h3>
-                                        <p>${dish.description}</p>
-                                        <div class="menu-card-footer">
-                                            <div class="price">₹${dish.price}</div>
-                                            <button class="btn btn-primary">Add</button>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
+                // Render all dishes initially
+                renderDishes(allDishes);
 
             } catch (error) {
                 console.error('Error:', error);
                 container.innerHTML = '<div class="loading">Failed to load menu</div>';
             }
+        }
+
+        function createCategoryFilters() {
+            const categories = [...new Set(allDishes.map(d => d.category))];
+            const filterButtons = document.getElementById('filterButtons');
+
+            const categoryEmojis = {
+                'Maggie': '🍜',
+                'Snacks': '🍿',
+                'Beverages': '☕',
+                'Combo': '🎁'
+            };
+
+            let html = '<button class="filter-btn active" data-category="all">All Items</button>';
+            categories.forEach(cat => {
+                const emoji = categoryEmojis[cat] || '🍽️';
+                html += `<button class="filter-btn" data-category="${cat}">${emoji} ${cat}</button>`;
+            });
+
+            filterButtons.innerHTML = html;
+
+            // Add click handlers
+            filterButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    // Update active state
+                    filterButtons.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter dishes
+                    const category = this.dataset.category;
+                    currentCategory = category;
+
+                    if (category === 'all') {
+                        renderDishes(allDishes);
+                    } else {
+                        const filtered = allDishes.filter(d => d.category === category);
+                        renderDishes(filtered);
+                    }
+                });
+            });
+        }
+
+        function renderDishes(dishes) {
+            const container = document.getElementById('menuContainer');
+
+            if (dishes.length === 0) {
+                container.innerHTML = '<div class="loading">No dishes in this category</div>';
+                return;
+            }
+
+            container.innerHTML = dishes.map(dish => `
+                <div class="menu-card">
+                    <div class="emoji">${dish.emoji || '🍜'}</div>
+                    <h3>${dish.name}</h3>
+                    <p>${dish.description}</p>
+                    <div class="menu-card-footer">
+                        <div class="price">₹${dish.price}</div>
+                        <button class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Load menu on page load

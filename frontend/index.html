@@ -338,22 +338,9 @@
             <h2 class="section-title">Popular Items</h2>
             <div class="menu-grid" id="menuGrid">
                 <div class="menu-card">
-                    <div class="emoji">🍜</div>
-                    <h3>Classic Maggie</h3>
-                    <p>Hot and spicy, just the way you like it</p>
-                    <div class="price">₹30</div>
-                </div>
-                <div class="menu-card">
-                    <div class="emoji">☕</div>
-                    <h3>Hot Coffee</h3>
-                    <p>Perfect for those late night study sessions</p>
-                    <div class="price">₹20</div>
-                </div>
-                <div class="menu-card">
-                    <div class="emoji">🍿</div>
-                    <h3>Snacks Combo</h3>
-                    <p>Mix of your favorite munchies</p>
-                    <div class="price">₹50</div>
+                    <div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.6);">
+                        Loading popular items...
+                    </div>
                 </div>
             </div>
             <div style="text-align: center;">
@@ -361,6 +348,41 @@
             </div>
         </div>
     </section>
+
+    <script>
+        // Load popular items from backend
+        async function loadPopularItems() {
+            const grid = document.getElementById('menuGrid');
+            try {
+                const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+                const response = await fetch(`${API_URL}/api/admin/dishes/available`);
+                const data = await response.json();
+                const dishes = data.dishes || [];
+
+                if (dishes.length === 0) {
+                    grid.innerHTML = '<div class="menu-card"><p style="text-align:center;color:rgba(255,255,255,0.6);">No items available</p></div>';
+                    return;
+                }
+
+                // Show first 3 items as popular
+                const popular = dishes.slice(0, 3);
+                grid.innerHTML = popular.map(dish => `
+                    <div class="menu-card">
+                        <div class="emoji">${dish.emoji || '🍜'}</div>
+                        <h3>${dish.name}</h3>
+                        <p>${dish.description}</p>
+                        <div class="price">₹${dish.price}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading popular items:', error);
+                grid.innerHTML = '<div class="menu-card"><p style="text-align:center;color:rgba(255,255,255,0.6);">Failed to load items</p></div>';
+            }
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadPopularItems);
+    </script>
 
     <!-- Features -->
     <section class="features" id="features">
