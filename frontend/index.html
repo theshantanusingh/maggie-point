@@ -4,270 +4,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Maggie Point - Your favorite late-night snacks delivered to your hostel room at Amity University, Greater Noida">
-    <title>Maggie Point - Hostel Food Delivery | Amity University</title>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/landing.css">
+    <title>Maggie Point - Late Night Food Delivery</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f97316;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #f97316;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: #0a0a0a;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            transition: 0.3s;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 150px 0 100px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero .gradient {
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-buttons .btn {
+            padding: 15px 40px;
+            font-size: 16px;
+        }
+
+        /* Menu Section */
+        .menu-section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 50px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .menu-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            border-color: #f97316;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-card .emoji {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .menu-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .menu-card p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .menu-card .price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: #0a0a0a;
+                flex-direction: column;
+                padding: 30px;
+                transform: translateX(-100%);
+                transition: 0.3s;
+            }
+
+            .nav-links.active {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-buttons {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span class="logo-icon">🍜</span>
-                <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
-            </div>
-            <div class="nav-links">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#menu" class="nav-link">Menu</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#contact" class="nav-link">Contact</a>
-            </div>
-            <div class="nav-actions">
-                <a href="/login" class="btn btn-ghost">Login</a>
+    <!-- Navbar -->
+    <nav>
+        <div class="container">
+            <div class="logo">🍜 MaggiePoint</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">Home</a></li>
+                <li><a href="/menu">Menu</a></li>
+                <li><a href="#features">Features</a></li>
+            </ul>
+            <div class="nav-buttons" id="navButtons">
+                <a href="/login" class="btn btn-outline">Login</a>
                 <a href="/signup" class="btn btn-primary">Sign Up</a>
             </div>
-            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <div class="menu-toggle" onclick="toggleMenu()">
                 <span></span>
                 <span></span>
                 <span></span>
-            </button>
+            </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-background">
-            <div class="hero-gradient"></div>
-            <div class="hero-pattern"></div>
-        </div>
-        <div class="hero-container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="badge-icon">🌙</span>
-                    <span>Open 10:30 PM – 2:00 AM</span>
-                </div>
-                <h1 class="hero-title">
-                    Late-Night Cravings,
-                    <span class="title-highlight">Solved.</span>
-                </h1>
-                <p class="hero-description">
-                    Hot Maggie, snacks, and beverages delivered directly to your hostel room.
-                    Exclusively for Amity University, Greater Noida.
-                </p>
-                <div class="hero-cta">
-                    <a href="#" data-smart-redirect="/signup" class="btn btn-large btn-primary">
-                        <span>Order Now</span>
-                        <span class="btn-icon">→</span>
-                    </a>
-                    <a href="#how-it-works" class="btn btn-large btn-outline">
-                        <span>How It Works</span>
-                    </a>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <div class="stat-value">15 min</div>
-                        <div class="stat-label">Avg. Delivery</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">Late Night</div>
-                        <div class="stat-label">Service Hours</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">Direct</div>
-                        <div class="stat-label">To Your Room</div>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="hero-image-container">
-                    <div class="hero-circle hero-circle-1"></div>
-                    <div class="hero-circle hero-circle-2"></div>
-                    <div class="hero-circle hero-circle-3"></div>
-                    <div class="hero-main-graphic">
-                        <div class="graphic-icon">🍜</div>
-                        <div class="graphic-glow"></div>
-                    </div>
-                </div>
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Late Night <span class="gradient">Cravings</span><br>Delivered Fast</h1>
+            <p>Hot Maggie, snacks, and beverages delivered to your hostel room. Exclusively for Amity University
+                students.</p>
+            <div class="hero-buttons">
+                <a href="#" class="btn btn-primary" id="orderNowBtn">Order Now →</a>
+                <a href="/menu" class="btn btn-outline">View Menu</a>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
+    <!-- Popular Items -->
+    <section class="menu-section">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Why Students Love Us</h2>
-                <p class="section-description">Everything you need for those late-night study sessions</p>
+            <h2 class="section-title">Popular Items</h2>
+            <div class="menu-grid" id="menuGrid">
+                <div class="menu-card">
+                    <div class="emoji">🍜</div>
+                    <h3>Classic Maggie</h3>
+                    <p>Hot and spicy, just the way you like it</p>
+                    <div class="price">₹30</div>
+                </div>
+                <div class="menu-card">
+                    <div class="emoji">☕</div>
+                    <h3>Hot Coffee</h3>
+                    <p>Perfect for those late night study sessions</p>
+                    <div class="price">₹20</div>
+                </div>
+                <div class="menu-card">
+                    <div class="emoji">🍿</div>
+                    <h3>Snacks Combo</h3>
+                    <p>Mix of your favorite munchies</p>
+                    <div class="price">₹50</div>
+                </div>
             </div>
+            <div style="text-align: center;">
+                <a href="/menu" class="btn btn-primary">View Full Menu</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Us</h2>
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3 class="feature-title">Lightning Fast</h3>
-                    <p class="feature-description">Average delivery time of just 15 minutes to your room</p>
+                <div class="feature">
+                    <div class="icon">⚡</div>
+                    <h3>Fast Delivery</h3>
+                    <p>Get your food in 15-20 minutes</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3 class="feature-title">Student Friendly Prices</h3>
-                    <p class="feature-description">Affordable prices that won't break your monthly budget</p>
+                <div class="feature">
+                    <div class="icon">🏠</div>
+                    <h3>Room Delivery</h3>
+                    <p>Delivered right to your hostel room</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🌙</div>
-                    <h3 class="feature-title">Late Night Service</h3>
-                    <p class="feature-description">Open every night from 10:30 PM to 2:00 AM for your cravings</p>
+                <div class="feature">
+                    <div class="icon">💰</div>
+                    <h3>Student Friendly</h3>
+                    <p>Affordable prices for students</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3 class="feature-title">Easy Ordering</h3>
-                    <p class="feature-description">Simple interface, quick checkout, instant confirmation</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔥</div>
-                    <h3 class="feature-title">Always Fresh</h3>
-                    <p class="feature-description">Made fresh when you order, delivered hot to your door</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <h3 class="feature-title">Track Your Order</h3>
-                    <p class="feature-description">Real-time updates from kitchen to your doorstep</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Menu Preview Section -->
-    <section id="menu" class="menu-preview">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Popular Items</h2>
-                <p class="section-description">Our most loved items by Amity students</p>
-            </div>
-            <div class="menu-grid">
-                <div class="menu-item">
-                    <div class="menu-item-image">🍜</div>
-                    <div class="menu-item-content">
-                        <h3 class="menu-item-title">Classic Maggie</h3>
-                        <div class="menu-grid" id="menuGrid">
-                            <!-- Menu items will be loaded from API -->
-                            <div class="loading-message"
-                                style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.6);">
-                                Loading menu...
-                            </div>
-                        </div>
-                        <div class="menu-cta">
-                            <a href="#" data-smart-redirect="/signup" class="btn btn-large btn-primary">Order Now</a>
-                        </div>
-                    </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="how-it-works">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">How It Works</h2>
-                <p class="section-description">Get your food in 3 simple steps</p>
-            </div>
-            <div class="steps-grid">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-icon">📱</div>
-                    <h3 class="step-title">Browse & Order</h3>
-                    <p class="step-description">Choose from our menu and place your order in seconds</p>
-                </div>
-                <div class="step-connector"></div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-icon">👨‍🍳</div>
-                    <h3 class="step-title">We Prepare</h3>
-                    <p class="step-description">Our team prepares your order fresh and hot</p>
-                </div>
-                <div class="step-connector"></div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-icon">🚀</div>
-                    <h3 class="step-title">Delivered</h3>
-                    <p class="step-description">Get it delivered to your hostel room in 15 minutes</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="cta-container">
-            <div class="cta-content">
-                <h2 class="cta-title">Ready to Order?</h2>
-                <p class="cta-description">Join hundreds of Amity students who trust Maggie Point for their late-night
-                    cravings</p>
-                <div class="cta-buttons">
-                    <a href="signup.html" class="btn btn-large btn-white">
-                        <span>Get Started Now</span>
-                        <span class="btn-icon">→</span>
-                    </a>
+                <div class="feature">
+                    <div class="icon">🌙</div>
+                    <h3>Late Night</h3>
+                    <p>Open till midnight</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div class="footer-column">
-                    <div class="footer-logo">
-                        <span class="logo-icon">🍜</span>
-                        <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
-                    </div>
-                    <p class="footer-description">Your favorite hostel food delivery service at Amity University,
-                        Greater Noida.</p>
-                </div>
-                <div class="footer-column">
-                    <h4 class="footer-heading">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#menu">Menu</a></li>
-                        <li><a href="#how-it-works">How It Works</a></li>
-                        <li><a href="login.html">Login</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h4 class="footer-heading">Support</h4>
-                    <ul class="footer-links">
-                        <li><a href="#contact">Contact Us</a></li>
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="#terms">Terms of Service</a></li>
-                        <li><a href="#privacy">Privacy Policy</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h4 class="footer-heading">Contact</h4>
-                    <ul class="footer-contact">
-                        <li>📍 Amity University, Greater Noida</li>
-                        <li>📞 +91 98765 43210</li>
-                        <li>✉️ hello@maggiepoint.com</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Maggie Point. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook">📘</a>
-                    <a href="#" aria-label="Instagram">📷</a>
-                    <a href="#" aria-label="Twitter">🐦</a>
-                </div>
-            </div>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 MaggiePoint. Made with ❤️ for Amity students.</p>
         </div>
     </footer>
 
     <script src="/js/navbar.js"></script>
-    <script src="/js/app.js"></script>
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Smart Order Now button
+        document.getElementById('orderNowBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            const isLoggedIn = !!localStorage.getItem('token');
+            window.location.href = isLoggedIn ? '/menu' : '/signup';
+        });
+    </script>
 </body>
 
 </html>

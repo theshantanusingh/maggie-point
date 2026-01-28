@@ -4,285 +4,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore our delicious menu - Maggie Point | Late night food delivery for hostels">
-    <title>Our Menu - Maggie Point</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/landing.css">
+    <title>Menu - Maggie Point</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #f97316;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: white;
+        }
+
+        /* Hero */
+        .page-hero {
+            padding: 120px 0 60px;
+            text-align: center;
+        }
+
+        .page-hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .page-hero p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .gradient {
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Menu */
+        .menu-section {
+            padding: 40px 0 80px;
+        }
+
+        .category {
+            margin-bottom: 60px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .category-icon {
+            font-size: 40px;
+        }
+
+        .category-title {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: #f97316;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-card .emoji {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .menu-card p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .menu-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: #0a0a0a;
+                flex-direction: column;
+                padding: 30px;
+                transform: translateX(-100%);
+                transition: 0.3s;
+            }
+
+            .nav-links.active {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-buttons {
+                display: none;
+            }
+
+            .page-hero h1 {
+                font-size: 32px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container navbar-container">
-            <a href="/" class="brand-logo">
-                <span class="logo-icon">🍜</span>
-                <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
-            </a>
-
-            <div class="nav-links" id="navLinks">
-                <a href="/" class="nav-link">Home</a>
-                <a href="/menu" class="nav-link active">Menu</a>
-                <a href="/#features" class="nav-link">Features</a>
-                <a href="/#reviews" class="nav-link">Reviews</a>
-            </div>
-
-            <div class="nav-actions">
-                <a href="/login" class="btn btn-ghost">Log In</a>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🍜 MaggiePoint</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/menu" class="active">Menu</a></li>
+                <li><a href="/#features">Features</a></li>
+            </ul>
+            <div class="nav-buttons" id="navButtons">
+                <a href="/login" class="btn btn-outline">Login</a>
                 <a href="/signup" class="btn btn-primary">Sign Up</a>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+            </div>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="menu-hero">
-        <div class="container menu-hero-content">
-            <h1 class="menu-hero-title">Our <span class="text-gradient">Delicious</span> Menu</h1>
-            <p class="menu-hero-subtitle">From classic maggie to refreshing beverages, we've got everything you need for
-                those late-night cravings</p>
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <h1>Our <span class="gradient">Delicious</span> Menu</h1>
+            <p>Fresh food delivered to your room</p>
         </div>
     </section>
 
-    <!-- Filter Section -->
-    <section class="filter-section">
-        <div class="container">
-            <div class="filter-bar" id="filterBar">
-                <button class="filter-btn active" data-filter="all">
-                    <span>🍽️</span>
-                    <span>All Items</span>
-                </button>
-                <button class="filter-btn" data-filter="Maggie">
-                    <span>🍜</span>
-                    <span>Maggie</span>
-                </button>
-                <button class="filter-btn" data-filter="Snacks">
-                    <span>🍿</span>
-                    <span>Snacks</span>
-                </button>
-                <button class="filter-btn" data-filter="Beverages">
-                    <span>☕</span>
-                    <span>Beverages</span>
-                </button>
-                <button class="filter-btn" data-filter="Combo">
-                    <span>🎁</span>
-                    <span>Combos</span>
-                </button>
-            </div>
+    <!-- Menu -->
+    <section class="menu-section">
+        <div class="container" id="menuContainer">
+            <div class="loading">Loading menu...</div>
         </div>
     </section>
 
-    <!-- Menu Content -->
-    <section class="menu-content">
-        <div class="container">
-            <div id="menuContainer">
-                <div class="loading-container">
-                    <div class="loading-spinner"></div>
-                    <p class="loading-text">Loading delicious dishes...</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a href="/" class="brand-logo">
-                        <span class="logo-icon">🍜</span>
-                        <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
-                    </a>
-                    <p class="footer-desc">Delivering happiness to your hostel room, one bowl at a time.</p>
-                </div>
-                <div class="footer-links">
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/menu">Full Menu</a></li>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/signup">Sign Up</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4 class="footer-title">Contact</h4>
-                    <ul>
-                        <li><a href="#">📍 Amity University Campus</a></li>
-                        <li><a href="#">📞 +91 98765 43210</a></li>
-                        <li><a href="#">✉️ hello@maggiepoint.com</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Maggie Point. Made with ❤️ for hostel students.</p>
-            </div>
-        </div>
-    </footer>
-
-    <iframe id="menuPageCssFix" style="display:none;"></iframe>
-    <style>
-        /* Force white links globally to prevent blue text on black bg */
-        a {
-            color: inherit;
-        }
-
-        a:not([class]) {
-            color: #f97316;
-            text-decoration: underline;
-        }
-    </style>
     <script src="/js/navbar.js"></script>
-    <script src="/js/app.js"></script>
     <script>
-        let allDishes = [];
-        let currentFilter = 'all';
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadMenu();
-            initFilters();
-            initMobileMenu();
-        });
-
-        function initMobileMenu() {
-            const toggle = document.getElementById('mobileMenuToggle');
-            const navLinks = document.getElementById('navLinks');
-
-            if (toggle) {
-                toggle.addEventListener('click', () => {
-                    navLinks.classList.toggle('active');
-                    toggle.classList.toggle('active');
-                });
-            }
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
         }
 
+        // Load menu from API
         async function loadMenu() {
             const container = document.getElementById('menuContainer');
 
             try {
-                const API_BASE_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
-                const response = await fetch(`${API_BASE_URL}/api/admin/dishes/available`);
-
-                if (!response.ok) throw new Error('Failed to load menu');
-
+                const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+                const response = await fetch(`${API_URL}/api/admin/dishes/available`);
                 const data = await response.json();
-                allDishes = data.dishes || [];
+                const dishes = data.dishes || [];
 
-                if (allDishes.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">😴</div>
-                            <h3>No dishes available right now</h3>
-                            <p>Check back soon for our delicious menu!</p>
-                        </div>
-                    `;
+                if (dishes.length === 0) {
+                    container.innerHTML = '<div class="loading">No dishes available</div>';
                     return;
                 }
 
-                renderMenu(allDishes);
+                // Group by category
+                const categories = {};
+                dishes.forEach(dish => {
+                    const cat = dish.category || 'Other';
+                    if (!categories[cat]) categories[cat] = [];
+                    categories[cat].push(dish);
+                });
+
+                // Render categories
+                const categoryIcons = {
+                    'Maggie': '🍜',
+                    'Snacks': '🍿',
+                    'Beverages': '☕',
+                    'Combo': '🎁'
+                };
+
+                let html = '';
+                Object.keys(categories).forEach(cat => {
+                    html += `
+                        <div class="category">
+                            <div class="category-header">
+                                <div class="category-icon">${categoryIcons[cat] || '🍽️'}</div>
+                                <h2 class="category-title">${cat}</h2>
+                            </div>
+                            <div class="menu-grid">
+                                ${categories[cat].map(dish => `
+                                    <div class="menu-card">
+                                        <div class="emoji">${dish.emoji || '🍜'}</div>
+                                        <h3>${dish.name}</h3>
+                                        <p>${dish.description}</p>
+                                        <div class="menu-card-footer">
+                                            <div class="price">₹${dish.price}</div>
+                                            <button class="btn btn-primary">Add</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
 
             } catch (error) {
-                console.error('Menu Load Error:', error);
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <h3>Oops! Something went wrong</h3>
-                        <p>Please refresh the page to try again.</p>
-                    </div>
-                `;
+                console.error('Error:', error);
+                container.innerHTML = '<div class="loading">Failed to load menu</div>';
             }
         }
 
-        function renderMenu(dishes) {
-            const container = document.getElementById('menuContainer');
-
-            const categories = {};
-            const categoryEmojis = {
-                'Maggie': '🍜',
-                'Snacks': '🍿',
-                'Beverages': '☕',
-                'Combo': '🎁'
-            };
-
-            dishes.forEach(dish => {
-                const cat = dish.category || 'Other';
-                if (!categories[cat]) categories[cat] = [];
-                categories[cat].push(dish);
-            });
-
-            const categoryOrder = ['Maggie', 'Snacks', 'Beverages', 'Combo'];
-            const sortedKeys = Object.keys(categories).sort((a, b) => {
-                const idxA = categoryOrder.indexOf(a);
-                const idxB = categoryOrder.indexOf(b);
-                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-                if (idxA !== -1) return -1;
-                if (idxB !== -1) return 1;
-                return a.localeCompare(b);
-            });
-
-            let html = '';
-
-            sortedKeys.forEach(cat => {
-                html += `
-                    <div class="category-section" data-category="${cat}">
-                        <div class="category-header">
-                            <div class="category-icon">${categoryEmojis[cat] || '🍽️'}</div>
-                            <div class="category-info">
-                                <h2 class="category-title">${cat}</h2>
-                                <p class="category-count">${categories[cat].length} delicious item${categories[cat].length > 1 ? 's' : ''}</p>
-                            </div>
-                        </div>
-                        <div class="menu-grid">
-                            ${categories[cat].map(dish => `
-                                <div class="menu-card">
-                                    <div class="menu-card-header">
-                                        <div class="menu-card-emoji">${dish.emoji || '🍜'}</div>
-                                        <div class="menu-card-info">
-                                            <h3 class="menu-card-name">${dish.name}</h3>
-                                        </div>
-                                    </div>
-                                    <p class="menu-card-description">${dish.description}</p>
-                                    <div class="menu-card-footer">
-                                        <span class="menu-card-price">₹${dish.price}</span>
-                                        <button class="menu-card-btn">Add to Cart</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function initFilters() {
-            const filterBtns = document.querySelectorAll('.filter-btn');
-
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-
-                    const filter = this.dataset.filter;
-                    currentFilter = filter;
-
-                    if (filter === 'all') {
-                        renderMenu(allDishes);
-                    } else {
-                        const filtered = allDishes.filter(d => d.category === filter);
-                        renderMenu(filtered);
-                    }
-                });
-            });
-        }
+        // Load menu on page load
+        document.addEventListener('DOMContentLoaded', loadMenu);
     </script>
 </body>
 
