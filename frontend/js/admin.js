@@ -25,12 +25,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // === AUTHENTICATION ===
 function checkAuth() {
-    authToken = localStorage.getItem('token');
+    // Check both keys to handle potential legacy/caching issues
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
 
-    if (!authToken) {
+    if (!token) {
+        console.warn('No auth token found, redirecting to login');
         window.location.href = '/login';
         return;
     }
+
+    // Store in global variable if needed, or just rely on localStorage
+    authToken = token; // Keep global var name for compatibility with rest of file
 
     // Load user info
     loadUserProfile();

@@ -286,7 +286,12 @@ function initLoginPage() {
                 showNotification('Login successful! Redirecting...', 'success');
 
                 setTimeout(() => {
-                    window.location.href = 'menu.html';
+                    // Check if user is admin
+                    if (data.user.isAdmin) {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/';
+                    }
                 }, 1500);
             } else {
                 throw new Error(data.message || 'Login failed');
