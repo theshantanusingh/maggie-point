@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin Panel - Maggie Point">
+    <title>Admin Panel - Maggie Point</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="brand-logo">
+                    <span class="logo-icon">🍜</span>
+                    <span class="logo-text">Maggie<span class="logo-highlight">Point</span></span>
+                </a>
+                <div class="admin-badge">Admin Panel</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="dishes">
+                    <span class="nav-icon">🍜</span>
+                    <span>Manage Dishes</span>
+                </a>
+                <a href="#" class="nav-item" data-section="users">
+                    <span class="nav-icon">👥</span>
+                    <span>Manage Users</span>
+                </a>
+                <a href="#" class="nav-item" data-section="admins">
+                    <span class="nav-icon">👑</span>
+                    <span>Admins</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-avatar" id="adminAvatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="adminName">Admin</div>
+                        <div class="profile-email" id="adminEmail">admin@example.com</div>
+                    </div>
+                </div>
+                <button class="btn btn-ghost btn-full" id="logoutBtn">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <div class="header-actions">
+                    <a href="/" class="btn btn-outline">View Website</a>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="admin-content">
+                <!-- Dashboard Section -->
+                <section id="section-dashboard" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-value" id="statUsers">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👑</div>
+                            <div class="stat-value" id="statAdmins">0</div>
+                            <div class="stat-label">Admins</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🍜</div>
+                            <div class="stat-value" id="statDishes">0</div>
+                            <div class="stat-label">Total Dishes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-value" id="statAvailable">0</div>
+                            <div class="stat-label">Available</div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h2 class="section-subtitle">Quick Actions</h2>
+                        <div class="actions-grid">
+                            <button class="action-card" data-action="add-dish">
+                                <span class="action-icon">➕</span>
+                                <span class="action-label">Add New Dish</span>
+                            </button>
+                            <button class="action-card" data-action="view-users">
+                                <span class="action-icon">👥</span>
+                                <span class="action-label">View All Users</span>
+                            </button>
+                            <button class="action-card" data-action="view-admins">
+                                <span class="action-icon">👑</span>
+                                <span class="action-label">Manage Admins</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dishes Section -->
+                <section id="section-dishes" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">All Dishes</h2>
+                        <button class="btn btn-primary" id="addDishBtn">
+                            <span>➕</span>
+                            <span>Add Dish</span>
+                        </button>
+                    </div>
+                    <div class="dishes-grid" id="dishesGrid">
+                        <!-- Dishes will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="section-users" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">All Users</h2>
+                        <div class="search-box">
+                            <input type="text" placeholder="Search users..." id="userSearch">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Room</th>
+                                    <th>Admin</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Admins Section -->
+                <section id="section-admins" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">Admin Users</h2>
+                    </div>
+                    <div class="admins-grid" id="adminsGrid">
+                        <!-- Admins will be loaded here -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Dish Modal -->
+    <div class="modal" id="dishModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalDishTitle">Add New Dish</h3>
+                <button class="modal-close" id="closeDishModal">&times;</button>
+            </div>
+            <form class="modal-body" id="dishForm">
+                <div class="form-group">
+                    <label class="form-label">Dish Name</label>
+                    <input type="text" class="form-input" id="dishName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" id="dishDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" class="form-input" id="dishPrice" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="dishCategory" required>
+                            <option value="Maggie">Maggie</option>
+                            <option value="Beverages">Beverages</option>
+                            <option value="Snacks">Snacks</option>
+                            <option value="Combo">Combo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Emoji</label>
+                        <input type="text" class="form-input" id="dishEmoji" placeholder="🍜" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Available</label>
+                        <select class="form-select" id="dishAvailable">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelDishBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveDishBtn">Save Dish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+
+</html>
