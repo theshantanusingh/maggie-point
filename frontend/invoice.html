@@ -133,6 +133,33 @@
                 padding: 0;
             }
         }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .invoice-container {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .info-grid div:last-child {
+                text-align: left !important;
+            }
+
+            .items-table {
+                font-size: 13px;
+            }
+
+            .grand-total {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 

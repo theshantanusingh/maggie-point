@@ -108,6 +108,28 @@
             text-align: center;
             padding: 40px;
         }
+
+        @media (max-width: 576px) {
+            .order-header {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .order-footer {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .order-footer div {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .orders-section {
+                padding-top: 100px;
+            }
+        }
     </style>
 </head>
 

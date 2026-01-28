@@ -166,7 +166,17 @@ function initNavigation() {
             else if (sectionId === 'offers') loadOffers();
             else if (sectionId === 'email-tool') loadEmailTool();
             else if (sectionId === 'logs') loadLogs();
+
+            // Auto-close sidebar on mobile
+            if (window.innerWidth <= 1024) {
+                document.querySelector('.admin-sidebar').classList.remove('active');
+            }
         });
+    });
+
+    // Sidebar Toggle for Mobile
+    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+        document.querySelector('.admin-sidebar').classList.toggle('active');
     });
 
     // Refresh Activities Btn
@@ -491,10 +501,15 @@ async function loadDashboard() {
 
         if (response.ok) {
             const data = await response.json();
-            document.getElementById('statUsers').textContent = data.totalUsers;
-            document.getElementById('statAdmins').textContent = data.totalAdmins;
-            document.getElementById('statDishes').textContent = data.totalDishes;
-            document.getElementById('statAvailable').textContent = data.availableDishes;
+            const elOrders = document.getElementById('statOrders');
+            const elRevenue = document.getElementById('statRevenue');
+            const elUsers = document.getElementById('statUsers');
+            const elDishes = document.getElementById('statDishes');
+
+            if (elOrders) elOrders.textContent = data.pendingOrders || (data.stats ? data.stats.find(s => s._id === 'pending')?.count || 0 : 0);
+            if (elRevenue) elRevenue.textContent = `₹${data.totalRevenue || 0}`;
+            if (elUsers) elUsers.textContent = data.totalUsers;
+            if (elDishes) elDishes.textContent = data.totalDishes;
         }
     } catch (error) {
         console.error('Load Dashboard Error:', error);

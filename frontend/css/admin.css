@@ -561,4 +561,16 @@ body {
     .admin-main {
         margin-left: 0;
     }
+
+    #sidebarToggle {
+        display: block !important;
+    }
+
+    .admin-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
 }

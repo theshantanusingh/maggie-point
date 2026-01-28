@@ -131,8 +131,37 @@
         }
 
         @media (max-width: 768px) {
-            .step-label {
-                font-size: 10px;
+            .timeline {
+                flex-direction: column;
+                gap: 30px;
+                padding-left: 20px;
+            }
+
+            .timeline::before {
+                top: 0;
+                left: 15px;
+                width: 2px;
+                height: 100%;
+            }
+
+            .step {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                text-align: left;
+            }
+
+            .step-circle {
+                margin: 0;
+            }
+
+            .timer-box {
+                font-size: 36px;
+            }
+
+            .status-card {
+                padding: 25px;
             }
         }
     </style>

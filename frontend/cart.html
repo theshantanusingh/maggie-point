@@ -97,6 +97,41 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+
+        @media (max-width: 992px) {
+            .cart-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .payment-card {
+                position: static;
+                top: auto;
+            }
+
+            .cart-section {
+                padding-top: 100px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .item-controls {
+                width: 100%;
+                justify-content: space-between;
+                padding-top: 10px;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .cart-items {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 
