@@ -311,8 +311,20 @@
             }
         }
 
-        function logout() {
+        async function logout() {
             if (confirm('Are you sure you want to logout?')) {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+                        await fetch(`${API_URL}/api/auth/logout`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                    } catch (e) {
+                        console.error('Logout log failed', e);
+                    }
+                }
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 window.location.href = '/';

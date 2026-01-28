@@ -99,7 +99,18 @@ async function loadUserProfile() {
     document.getElementById('adminAvatar').textContent = user.firstName?.[0] || 'A';
 }
 
-document.getElementById('logoutBtn').addEventListener('click', function () {
+document.getElementById('logoutBtn').addEventListener('click', async function () {
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    if (token) {
+        try {
+            await fetch(`${API_BASE_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (e) {
+            console.error('Logout log failed', e);
+        }
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
@@ -127,7 +138,8 @@ function initNavigation() {
                 'orders': 'Manage Orders',
                 'dishes': 'Manage Dishes',
                 'users': 'Manage Users',
-                'admins': 'Admin Users'
+                'admins': 'Admin Users',
+                'logs': 'System Logs'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
 
@@ -136,8 +148,12 @@ function initNavigation() {
             else if (sectionId === 'dishes') loadDishes();
             else if (sectionId === 'users') loadUsers();
             else if (sectionId === 'admins') loadAdmins();
+            else if (sectionId === 'logs') loadLogs();
         });
     });
+
+    // Refresh Logs Btn
+    document.getElementById('refreshLogsBtn')?.addEventListener('click', loadLogs);
 
     // Order Filters
     document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -147,6 +163,33 @@ function initNavigation() {
             filterOrders(this.dataset.status);
         });
     });
+}
+
+// === LOGS ===
+async function loadLogs() {
+    const logsBox = document.getElementById('logsBox');
+    logsBox.innerHTML = 'Fetching logs...';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/logs/app`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch logs');
+
+        const text = await response.text();
+        const lines = text.split('\n').filter(Boolean).reverse(); // Latest logs first
+
+        logsBox.innerHTML = lines.map(line => {
+            let color = '#0f0'; // Default green
+            if (line.includes('[ERROR]')) color = '#ff4444';
+            if (line.includes('[WARN]')) color = '#ffbb33';
+
+            return `<div style="color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0;">${line}</div>`;
+        }).join('');
+    } catch (error) {
+        logsBox.innerHTML = `<span style="color: red">Error: ${error.message}</span>`;
+    }
 }
 
 // === ORDERS MANAGEMENT ===
@@ -212,6 +255,8 @@ function renderOrders(orders) {
             timerHtml = `<div class="admin-timer" data-end="${endTime}" style="font-size: 24px; font-weight: 800; color: #f97316; margin: 10px 0; font-family: monospace;">--:--</div>`;
         }
 
+        const itemsTotal = order.items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
         return `
         <div class="order-card" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
             <div style="display:flex; justify-content:space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1)">
@@ -235,6 +280,9 @@ function renderOrders(orders) {
                 <div>
                     <div style="color:rgba(255,255,255,0.5); font-size:12px">Payment</div>
                     <div style="font-weight:600; color:#f97316">₹${order.totalAmount}</div>
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.4)">
+                        Items: ₹${itemsTotal} + Fee: ₹${order.convenienceFee || 0}
+                    </div>
                     ${order.paymentDetails?.utrNumber ? `<div style="font-size:13px; background:rgba(249,115,22,0.1); padding:4px; border-radius:4px; margin-top:5px">UTR: ${order.paymentDetails.utrNumber}</div>` : '<div style="font-size:13px; color:rgba(255,255,255,0.5)">No UTR</div>'}
                     ${order.deliveryType === 'takeaway' ? '<div style="margin-top:5px; background: #3b82f6; color:white; padding: 2px 6px; border-radius: 4px; display:inline-block; font-size: 12px;">Takeaway</div>' : '<div style="margin-top:5px; background: #8b5cf6; color:white; padding: 2px 6px; border-radius: 4px; display:inline-block; font-size: 12px;">Room Delivery</div>'}
                 </div>

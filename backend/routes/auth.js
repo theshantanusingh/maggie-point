@@ -212,4 +212,10 @@ router.get('/users', async (req, res) => {
     }
 });
 
+// POST /api/auth/logout
+router.post('/logout', authenticateToken, (req, res) => {
+    logger.info(`User logged out: ${req.user.email}`);
+    res.json({ message: 'Logged out successfully' });
+});
+
 module.exports = router;

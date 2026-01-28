@@ -216,11 +216,14 @@
                 </table>
                 
                 <div class="totals">
-                    <div class="total-row">Subtotal: ₹${order.totalAmount - (order.convenienceFee || 0)}</div>
-                    ${order.convenienceFee ? `<div class="total-row">Convenience Fee: ₹${order.convenienceFee}</div>` : ''}
-                    <div class="grand-total">Total: ₹${order.totalAmount}</div>
-                    <div style="font-size: 12px; margin-top: 5px; color: #888">
-                        ${order.deliveryType === 'takeaway' ? '(Takeaway Order)' : '(Room Delivery)'}
+                    <div class="total-row">Items Total: ₹${order.items.reduce((sum, i) => sum + (i.price * i.quantity), 0)}</div>
+                    <div class="total-row">Convenience Fee: ₹${order.convenienceFee || 0}</div>
+                    ${order.discountAmount ? `<div class="total-row" style="color: #22c55e">Discount: -₹${order.discountAmount}</div>` : ''}
+                    <div class="grand-total">Total Amount: ₹${order.totalAmount}</div>
+                    <div style="font-size: 12px; margin-top: 10px; color: #888; border-top: 1px solid #eee; padding-top: 10px">
+                        ${order.deliveryType === 'takeaway' ? '🥡 Takeaway Order' : '🏠 Room Delivery'}
+                        <br>
+                        ${order.paymentDetails.utrNumber ? `UTR: ${order.paymentDetails.utrNumber}` : ''}
                     </div>
                 </div>
                 

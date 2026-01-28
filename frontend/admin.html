@@ -48,6 +48,10 @@
                     <span class="nav-icon">👑</span>
                     <span>Admins</span>
                 </a>
+                <a href="#" class="nav-item" data-section="logs">
+                    <span class="nav-icon">📜</span>
+                    <span>System Logs</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -188,6 +192,21 @@
                     </div>
                     <div class="admins-grid" id="adminsGrid">
                         <!-- Admins will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Logs Section -->
+                <section id="section-logs" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-subtitle">System Logs</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-outline" id="refreshLogsBtn">Refresh Logs</button>
+                        </div>
+                    </div>
+                    <div class="logs-container"
+                        style="background: #000; color: #0f0; font-family: 'Courier Prime', monospace; padding: 20px; border-radius: 8px; height: 600px; overflow-y: auto; border: 1px solid #333; line-height: 1.5; font-size: 13px;"
+                        id="logsBox">
+                        Loading system logs...
                     </div>
                 </section>
             </div>
