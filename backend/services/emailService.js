@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://maggiepoint.onessa.agency';
+
 // Create transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -109,7 +111,7 @@ const getWelcomeEmailTemplate = (firstName) => {
                     We're open every night from <strong>10:30 PM to 2:00 AM</strong> to satisfy your late-night cravings.
                 </p>
                 <div style="text-align: center;">
-                    <a href="http://maggiepoint.onessa.agency" class="button">Start Ordering Now</a>
+                    <a href="${FRONTEND_URL}" class="button">Start Ordering Now</a>
                 </div>
             </div>
             <div class="footer">
@@ -229,7 +231,7 @@ const getOrderStatusEmailTemplate = (user, order, status) => {
                     <p style="margin: 5px 0;"><strong>Order ID:</strong> #${order.orderId}</p>
                     <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${order.totalAmount}</p>
                     <p style="margin: 5px 0;"><strong>Delivery to:</strong> Room ${user.room}, Floor ${user.floor}</p>
-                    ${status === 'PAID' ? `<p style="margin: 15px 0 5px; text-align: center;"><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/invoice.html?id=${order.mongoId}" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">View Invoice 📄</a></p>` : ''}
+                    ${status === 'PAID' ? `<p style="margin: 15px 0 5px; text-align: center;"><a href="${FRONTEND_URL}/invoice.html?id=${order.mongoId}" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">View Invoice 📄</a></p>` : ''}
                 </div>
                 <p style="color: #6b7280; font-size: 14px;">If you have any questions, feel free to contact us.</p>
             </div>
@@ -273,7 +275,7 @@ const getOfferEmailTemplate = (firstName, offer) => {
                 <div class="offer-card">
                     <div class="offer-title">${offer.title}</div>
                     <p class="offer-desc">${offer.description}</p>
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/menu.html" class="button">Grab this Offer</a>
+                    <a href="${FRONTEND_URL}/menu.html" class="button">Grab this Offer</a>
                 </div>
                 <p style="color: #9ca3af; font-size: 12px;">Valid until: ${new Date(offer.validUntil).toLocaleDateString()}</p>
             </div>
