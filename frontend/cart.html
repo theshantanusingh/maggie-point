@@ -287,9 +287,20 @@
             const utr = document.getElementById('utr').value;
             const instructions = document.getElementById('instructions').value;
 
+            if (!utr) {
+                alert('Please enter UTR/Transaction ID');
+                return;
+            }
+
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
             try {
                 // 1. Create Order
                 const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
+
+                console.log('Creating order with items:', items);
 
                 const response = await fetch(`${API_URL}/api/orders`, {
                     method: 'POST',
@@ -305,11 +316,13 @@
 
                 const data = await response.json();
 
-                if (!response.ok) throw new Error(data.message);
+                if (!response.ok) throw new Error(data.message || 'Failed to create order');
 
                 // 2. Submit Payment
                 const orderId = data.order._id;
-                await fetch(`${API_URL}/api/orders/${orderId}/payment`, {
+                console.log('Order created, ID:', orderId, 'Submitting UTR:', utr);
+
+                const paymentResponse = await fetch(`${API_URL}/api/orders/${orderId}/payment`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -320,14 +333,24 @@
                     })
                 });
 
+                if (!paymentResponse.ok) {
+                    const payErr = await paymentResponse.json();
+                    console.error('Payment submission failed:', payErr);
+                    alert(`Order created but failed to save UTR: ${payErr.message}. Please contact support.`);
+                    // We still redirect because order is created
+                } else {
+                    console.log('Payment details saved successfully');
+                }
+
                 // Clear cart and redirect
                 Cart.clear();
-                alert('Order placed successfully! Waiting for verification.');
-                // window.location.href = `/orders`; // Will create this page next
                 window.location.href = '/track-order.html?id=' + orderId;
 
             } catch (error) {
+                console.error('Order Error:', error);
                 alert('Error: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Order';
             }
         });
     </script>
