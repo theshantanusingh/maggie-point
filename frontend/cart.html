@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css"> <!-- Reuse main styles -->
+    <link rel="stylesheet" href="css/main.css">
     <style>
         .cart-section {
             padding: 120px 0 60px;
@@ -21,7 +21,6 @@
             gap: 40px;
         }
 
-        /* Cart Items */
         .cart-items {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
@@ -37,29 +36,10 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-
         .item-info {
             display: flex;
             align-items: center;
             gap: 15px;
-        }
-
-        .item-emoji {
-            font-size: 32px;
-        }
-
-        .item-details h3 {
-            font-size: 18px;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .item-details p {
-            color: #f97316;
-            font-weight: 700;
         }
 
         .item-controls {
@@ -86,7 +66,6 @@
             border-color: #f97316;
         }
 
-        /* Payment Section */
         .payment-card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
@@ -112,42 +91,11 @@
             color: white;
         }
 
-        .qr-code {
-            background: white;
+        .delivery-option-box {
+            background: rgba(0, 0, 0, 0.2);
             padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .qr-code img {
-            width: 100%;
-            max-width: 200px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .cart-grid {
-                grid-template-columns: 1fr;
-            }
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -176,31 +124,50 @@
                 <div class="payment-card">
                     <h2>Payment Details</h2>
 
+                    <div class="delivery-option-box">
+                        <label
+                            style="display:flex; align-items:center; gap:10px; margin-bottom: 10px; cursor: pointer; color: white">
+                            <input type="radio" name="deliveryType" value="room" checked onchange="renderCheckout()">
+                            <span>🏠 Room Delivery (+₹10)</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; cursor: pointer; color: white">
+                            <input type="radio" name="deliveryType" value="takeaway" onchange="renderCheckout()">
+                            <span>🥡 Takeaway (Pickup)</span>
+                        </label>
+                    </div>
+
                     <div class="bill-row">
-                        <span>Total Items</span>
-                        <span id="totalItems">0</span>
+                        <span>Items Total</span>
+                        <span id="itemsTotal">₹0</span>
+                    </div>
+                    <div class="bill-row" id="feeRow">
+                        <span>Convenience Fee</span>
+                        <span>₹10</span>
                     </div>
                     <div class="bill-row bill-total">
                         <span>Grand Total</span>
-                        <span style="color: #f97316" id="totalAmount">₹0</span>
+                        <span style="color: #f97316" id="grandTotal">₹0</span>
                     </div>
 
-                    <div class="qr-code">
-                        <!-- Replace with real UPI QR -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=your-upi-id@okicici&pn=MaggiePoint&am=0"
-                            id="qrImage" alt="Payment QR">
+                    <div class="qr-code"
+                        style="background: white; padding: 15px; border-radius: 12px; text-align: center; margin: 20px 0;">
+                        <img src="" id="qrImage" alt="Payment QR" style="width: 100%; max-width: 200px;">
                         <p style="color: #333; margin-top: 10px; font-weight: 600;">Scan to Pay</p>
                     </div>
 
                     <form id="orderForm">
-                        <div class="input-group">
-                            <label>Transaction ID / UTR (Required)</label>
-                            <input type="text" id="utr" placeholder="Enter 12-digit UTR number" required>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Transaction
+                                ID / UTR (Required)</label>
+                            <input type="text" id="utr" placeholder="Enter 12-digit UTR number" required
+                                style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
                         </div>
 
-                        <div class="input-group">
-                            <label>Any special instructions?</label>
-                            <input type="text" id="instructions" placeholder="e.g. Extra spicy, less salt">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Special
+                                Instructions</label>
+                            <input type="text" id="instructions" placeholder="e.g. Extra spicy, less salt"
+                                style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
                         </div>
 
                         <button type="submit" class="btn btn-primary" style="width: 100%">Submit Order</button>
@@ -214,6 +181,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             renderCart();
+            renderCheckout();
         });
 
         function renderCart() {
@@ -231,126 +199,107 @@
                 return;
             }
 
-            let html = '';
-            items.forEach(item => {
-                html += `
-                    <div class="cart-item">
-                        <div class="item-info">
-                            <div class="item-emoji">${item.emoji || '🍜'}</div>
-                            <div class="item-details">
-                                <h3>${item.name}</h3>
-                                <p>₹${item.price}</p>
-                            </div>
-                        </div>
-                        <div class="item-controls">
-                            <button class="qty-btn" onclick="updateQty('${item._id}', -1)">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="qty-btn" onclick="updateQty('${item._id}', 1)">+</button>
+            container.innerHTML = items.map(item => `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <div style="font-size: 32px;">${item.emoji || '🍜'}</div>
+                        <div>
+                            <h3>${item.name}</h3>
+                            <p style="color: rgba(255,255,255,0.6)">₹${item.price} x ${item.quantity}</p>
+                            <div style="color: #f97316; font-weight: 700">₹${item.price * item.quantity}</div>
                         </div>
                     </div>
-                `;
-            });
+                    <div class="item-controls">
+                        <button class="qty-btn" onclick="updateQty('${item._id}', -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQty('${item._id}', 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
 
-            container.innerHTML = html;
-
-            const total = Cart.total();
-            document.getElementById('totalAmount').textContent = `₹${total}`;
-            document.getElementById('totalItems').textContent = items.length;
-
-            // Update QR code with amount
-            const upiId = 'shantanusingh@okicici'; // Replace with real one
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${upiId}&pn=MaggiePoint&am=${total}`;
-            document.getElementById('qrImage').src = qrUrl;
+            // Initial render of prices
+            renderCheckout();
         }
+
+        window.renderCheckout = () => {
+            const isRoom = document.querySelector('input[name="deliveryType"]:checked')?.value === 'room';
+            const itemsTotal = Cart.total();
+            const fee = isRoom ? 10 : 0;
+            const grandTotal = itemsTotal + fee;
+
+            document.getElementById('itemsTotal').textContent = `₹${itemsTotal}`;
+            document.getElementById('feeRow').style.display = isRoom ? 'flex' : 'none';
+            document.getElementById('grandTotal').textContent = `₹${grandTotal}`;
+
+            // Update QR
+            const upiId = 'shantanusingh@okicici';
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${upiId}&pn=MaggiePoint&am=${grandTotal}`;
+            document.getElementById('qrImage').src = qrUrl;
+        };
 
         window.updateQty = (id, change) => {
             Cart.updateQuantity(id, change);
             renderCart();
         };
 
-        // Handle Form Submit
+        // Submit Logic
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Please login to place an order!');
+                alert('Please login!');
                 window.location.href = '/login';
                 return;
             }
 
-            const items = Cart.get().map(i => ({
-                dishId: i._id,
-                quantity: i.quantity
-            }));
-
+            const items = Cart.get().map(i => ({ dishId: i._id, quantity: i.quantity }));
             const utr = document.getElementById('utr').value;
             const instructions = document.getElementById('instructions').value;
+            const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
 
-            if (!utr) {
-                alert('Please enter UTR/Transaction ID');
-                return;
-            }
+            if (!utr) { alert('UTR is required'); return; }
 
-            const submitBtn = document.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Processing...';
+            const btn = document.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
 
             try {
-                // 1. Create Order
                 const API_URL = window.location.hostname.includes('maggiepoint') ? '' : 'http://localhost:3000';
 
-                console.log('Creating order with items:', items);
-
-                const response = await fetch(`${API_URL}/api/orders`, {
+                // 1. Create Order
+                const res = await fetch(`${API_URL}/api/orders`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({
                         items,
-                        deliveryDetails: { specialInstructions: instructions }
+                        deliveryDetails: { specialInstructions: instructions },
+                        deliveryType
                     })
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) throw new Error(data.message || 'Failed to create order');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
 
                 // 2. Submit Payment
-                const orderId = data.order._id;
-                console.log('Order created, ID:', orderId, 'Submitting UTR:', utr);
-
-                const paymentResponse = await fetch(`${API_URL}/api/orders/${orderId}/payment`, {
+                const payRes = await fetch(`${API_URL}/api/orders/${data.order._id}/payment`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        utrNumber: utr
-                    })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ utrNumber: utr })
                 });
 
-                if (!paymentResponse.ok) {
-                    const payErr = await paymentResponse.json();
-                    console.error('Payment submission failed:', payErr);
-                    alert(`Order created but failed to save UTR: ${payErr.message}. Please contact support.`);
-                    // We still redirect because order is created
-                } else {
-                    console.log('Payment details saved successfully');
+                if (!payRes.ok) {
+                    const payErr = await payRes.json();
+                    alert('Order created but payment update failed. Please contact support.');
                 }
 
-                // Clear cart and redirect
                 Cart.clear();
-                window.location.href = '/track-order.html?id=' + orderId;
+                window.location.href = `/track-order.html?id=${data.order._id}`;
 
-            } catch (error) {
-                console.error('Order Error:', error);
-                alert('Error: ' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Order';
+            } catch (err) {
+                alert(err.message);
+                btn.disabled = false;
+                btn.textContent = 'Submit Order';
             }
         });
     </script>

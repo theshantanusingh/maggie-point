@@ -39,6 +39,11 @@ router.post('/', authenticateToken, async (req, res) => {
             });
         }
 
+        // Calculate fee
+        const type = req.body.deliveryType || 'room';
+        const fee = type === 'room' ? 10 : 0;
+        totalAmount += fee;
+
         // Create order
         const order = new Order({
             userId: req.user.userId,
@@ -50,6 +55,8 @@ router.post('/', authenticateToken, async (req, res) => {
                 mobile: deliveryDetails?.mobile || req.user.mobile,
                 specialInstructions: deliveryDetails?.specialInstructions
             },
+            deliveryType: type,
+            convenienceFee: fee,
             customDeliveryTime,
             status: 'payment_pending'
         });

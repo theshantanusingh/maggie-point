@@ -48,6 +48,15 @@ const orderSchema = new mongoose.Schema({
         mobile: String,
         specialInstructions: String
     },
+    deliveryType: {
+        type: String,
+        enum: ['room', 'takeaway'],
+        default: 'room'
+    },
+    convenienceFee: {
+        type: Number,
+        default: 0
+    },
     estimatedDeliveryTime: {
         type: Number, // in minutes
         default: 10

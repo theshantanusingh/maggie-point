@@ -35,6 +35,7 @@ router.put('/:orderId/verify-payment', authenticateToken, requireAdmin, async (r
         order.paymentDetails.verifiedAt = new Date();
         order.status = 'confirmed';
         order.confirmedAt = new Date();
+        order.preparingAt = new Date(); // Start timer immediately
 
         await order.save();
 

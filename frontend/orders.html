@@ -179,7 +179,10 @@
                         </div>
                         <div class="order-footer">
                             <span>${new Date(order.createdAt).toLocaleString()}</span>
-                            <span style="color:white; font-weight:600">₹${order.totalAmount}</span>
+                            <div style="display:flex; gap:10px; align-items:center">
+                                <a href="/invoice.html?id=${order._id}" target="_blank" onclick="event.stopPropagation()" class="status-badge" style="background:rgba(255,255,255,0.1); color:white; text-decoration:none; border:1px solid rgba(255,255,255,0.2)">📄 Invoice</a>
+                                <span style="color:white; font-weight:600">₹${order.totalAmount}</span>
+                            </div>
                         </div>
                     </a>
                 `).join('');
