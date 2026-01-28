@@ -210,7 +210,10 @@ function renderOrders(orders) {
                     <span style="color:#f97316; font-weight:700">#${order._id.slice(-6).toUpperCase()}</span>
                     <span style="color:rgba(255,255,255,0.5); font-size: 12px; margin-left: 10px">${new Date(order.createdAt).toLocaleString()}</span>
                 </div>
-                <span class="status-badge" style="padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); font-size: 12px; text-transform: uppercase;">${order.status.replace('_', ' ')}</span>
+                <div style="display:flex; gap:10px; align-items:center">
+                     <a href="/invoice.html?id=${order._id}" target="_blank" style="text-decoration:none; font-size:12px; background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:4px; color:white;">📄 Invoice</a>
+                     <span class="status-badge" style="padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); font-size: 12px; text-transform: uppercase;">${order.status.replace('_', ' ')}</span>
+                </div>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px">
