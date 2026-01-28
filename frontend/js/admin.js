@@ -2,9 +2,13 @@
    admin.js - Admin Panel Logic
    =================================== */
 
-const API_BASE_URL = window.location.hostname === 'maggiepoint.onessa.agency' || window.location.hostname === 'www.maggiepoint.onessa.agency'
-    ? ''
-    : 'http://localhost:3000';
+const getApiUrl = () => {
+    const host = window.location.hostname;
+    const protocol = window.location.protocol;
+    if (host.includes('maggiepoint.onessa.agency')) return '';
+    return `${protocol}//${host}:3000`;
+};
+const API_BASE_URL = getApiUrl();
 
 let currentDishId = null;
 let authToken = null;
@@ -175,9 +179,17 @@ async function loadLogs() {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
 
-        if (!response.ok) throw new Error('Failed to fetch logs');
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(`Server responded with ${response.status}: ${errData.message || 'Unknown error'}`);
+        }
 
         const text = await response.text();
+        if (!text) {
+            logsBox.innerHTML = '<div style="color: #888">No logs recorded yet.</div>';
+            return;
+        }
+
         const lines = text.split('\n').filter(Boolean).reverse(); // Latest logs first
 
         logsBox.innerHTML = lines.map(line => {
@@ -188,7 +200,9 @@ async function loadLogs() {
             return `<div style="color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0;">${line}</div>`;
         }).join('');
     } catch (error) {
-        logsBox.innerHTML = `<span style="color: red">Error: ${error.message}</span>`;
+        console.error('Log fetch error:', error);
+        logsBox.innerHTML = `<span style="color: #ff4444">Error: ${error.message}</span><br>
+                             <small style="color: #888">URL: ${API_BASE_URL}/api/admin/logs/app</small>`;
     }
 }
 
