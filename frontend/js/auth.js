@@ -138,12 +138,19 @@ function initSignupPage() {
                 body: JSON.stringify({ email, otp })
             });
 
-            const data = await response.json();
+            // Check if response is valid JSON
+            let data;
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                data = await response.json();
+            } else {
+                throw new Error('Backend server is not responding. Please ensure the server is running.');
+            }
 
             if (response.ok) {
                 showNotification('✅ OTP Verified Successfully!', 'success');
                 verifyOtpBtn.textContent = 'Verified ✓';
-                verifyOtpBtn.classList.add('btn-success'); // You might need to add this style
+                verifyOtpBtn.classList.add('btn-success');
                 document.getElementById('otp').disabled = true;
 
                 // Disable email editing too
@@ -154,11 +161,20 @@ function initSignupPage() {
                 const timerElement = document.getElementById('otpTimer');
                 timerElement.style.display = 'none';
             } else {
-                throw new Error(data.message || 'Invalid OTP');
+                throw new Error(data.message || `Server error: ${response.status}`);
             }
         } catch (error) {
             console.error('Verify OTP Error:', error);
-            showNotification(error.message, 'error');
+            let errorMessage = error.message;
+
+            // Provide helpful error messages
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                errorMessage = 'Cannot connect to server. Please check your internet connection.';
+            } else if (error.message.includes('Backend server is not responding')) {
+                errorMessage = 'Server is not available. Please contact support.';
+            }
+
+            showNotification(errorMessage, 'error');
             verifyOtpBtn.disabled = false;
             verifyOtpBtn.textContent = 'Verify';
         }
