@@ -100,13 +100,16 @@
 
         @media (max-width: 992px) {
             .cart-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column;
                 gap: 20px;
             }
 
             .payment-card {
                 position: static;
                 top: auto;
+                width: 100%;
             }
 
             .cart-section {
@@ -132,6 +135,17 @@
                 padding: 20px;
             }
         }
+
+        .empty-cart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 50vh;
+            text-align: center;
+            width: 100%;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 
@@ -150,7 +164,7 @@
         <div class="container">
             <h1>Complete Your Order</h1>
 
-            <div class="cart-grid">
+            <div class="cart-grid" id="cartGrid">
                 <!-- Left: Items -->
                 <div class="cart-items" id="cartContainer">
                     <p style="text-align:center">Loading cart...</p>
@@ -223,15 +237,20 @@
         function renderCart() {
             const items = Cart.get();
             const container = document.getElementById('cartContainer');
+            const grid = document.getElementById('cartGrid');
+            const pageHeader = document.querySelector('.cart-section h1');
 
             if (items.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px;">
-                        <h2>Your cart is empty 😢</h2>
-                        <a href="/menu" class="btn btn-primary" style="margin-top: 20px">Go to Menu</a>
+                grid.innerHTML = `
+                    <div class="empty-cart-container">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🛒</div>
+                        <h2 style="font-size: 24px; margin-bottom: 10px;">Your cart is empty</h2>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 30px;">Add some delicious items to get started!</p>
+                        <a href="/menu" class="btn btn-primary">Browse Menu</a>
                     </div>
                 `;
-                document.querySelector('.payment-card').style.display = 'none';
+                if (pageHeader) pageHeader.style.display = 'none';
+                document.querySelector('.payment-card')?.remove();
                 return;
             }
 
